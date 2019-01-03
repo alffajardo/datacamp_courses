@@ -1,1 +1,2 @@
-# datacamp_courses
+# Data Camp courses
+
