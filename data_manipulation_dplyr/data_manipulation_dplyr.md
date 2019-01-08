@@ -219,9 +219,114 @@ Pay attention here: When you refer to columns directly inside [`select()`](http:
 100 XP
 
 - Use [`select()`](http://www.rdocumentation.org/packages/dplyr/functions/select) and a helper function to print out a tbl that contains just `ArrDelay` and `DepDelay` of `hflights`.
+
 - Use a combination of helper functions and variable names to print out only the `UniqueCarrier`, `FlightNum`, `TailNum`, `Cancelled`, and `CancellationCode` columns of `hflights`.
+
 - Find the most concise way to return the following columns with `select` and its helper functions:`DepTime`, `ArrTime`, `ActualElapsedTime`, `AirTime`, `ArrDelay`, `DepDelay`. Use only helper functions!
 
-- 
+  ```R
+  # As usual, hflights is pre-loaded as a tbl, together with the necessary libraries.
+  
+  # Print out a tbl containing just ArrDelay and DepDelay
+  select(hflights,ends_with("Delay"))
+  
+  # Print out a tbl as described in the second instruction, using both helper functions and variable names
+  select(hflights,7:9,19:20)
+  
+  # Print out a tbl as described in the third instruction, using only helper functions.
+  select(hflights,ends_with("Time"),ends_with("Delay"))
+  ```
 
-- 
+# Comparison to base R
+
+To see the added value of the `dplyr` package, it is useful to compare its syntax with base R. Up to now, you have only considered functionality that is also available without the use of `dplyr`. The elegance and ease-of-use of `dplyr` is a great plus though.
+
+##### Instructions
+
+100 XP
+
+Finish the `select()` calls to match the results of the base R commands. Try to make your calls as concise as possible.
+
+```R
+# both hflights and dplyr are available
+
+# Finish select call so that ex1d matches ex1r
+ex1r <- hflights[c("TaxiIn", "TaxiOut", "Distance")]
+ex1d <- select(hflights, contains("Taxi"), Distance)
+
+# Finish select call so that ex2d matches ex2r
+ex2r <- hflights[c("Year", "Month", "DayOfWeek", "DepTime", "ArrTime")]
+ex2d <- select(hflights, Year:ArrTime, -DayofMonth)
+
+# Finish select call so that ex3d matches ex3r
+ex3r <- hflights[c("TailNum", "TaxiIn", "TaxiOut")]
+ex3d <- select(hflights, starts_with("T"))
+```
+
+# both hflights and dplyr are available
+
+# Finish select call so that ex1d matches ex1r
+ex1r <- hflights[c("TaxiIn", "TaxiOut", "Distance")]
+ex1d <- select(hflights, contains("Taxi"), Distance)
+
+# Finish select call so that ex2d matches ex2r
+ex2r <- hflights[c("Year", "Month", "DayOfWeek", "DepTime", "ArrTime")]
+ex2d <- select(hflights, Year:ArrTime, -DayofMonth)
+
+# Finish select call so that ex3d matches ex3r
+ex3r <- hflights[c("TailNum", "TaxiIn", "TaxiOut")]
+ex3d <- select(hflights, starts_with("T"))
+
+```R
+# hflights and dplyr are loaded and ready to serve you.
+
+# Add the new variable ActualGroundTime to a copy of hflights and save the result as g1.
+g1 <- mutate(hflights,ActualGroundTime=ActualElapsedTime - AirTime)
+
+# Add the new variable GroundTime to g1. Save the result as g2.
+ g2 <- mutate(g1,GroundTime = TaxiIn + TaxiOut)
+
+# Add the new variable AverageSpeed to g2. Save the result as g3.
+g3 <- mutate(g2, AverageSpeed = 60 * Distance / AirTime )
+
+# Print out g3
+g3
+```
+
+# Add multiple variables using mutate
+
+So far you've added variables to hflights one at a time, but you can also use [`mutate()`](http://www.rdocumentation.org/packages/dplyr/functions/mutate) to add multiple variables at once. To create more than one variable, place a comma between each variable that you define inside [`mutate()`](http://www.rdocumentation.org/packages/dplyr/functions/mutate).
+
+[`mutate()`](http://www.rdocumentation.org/packages/dplyr/functions/mutate) even allows you to use a new variable while creating a next variable in the same call. In this example, the new variable `x` is directly reused to create the new variable `y`:
+
+```
+mutate(my_df, x = a + b, y = x + c)
+```
+
+##### Instructions
+
+100 XP
+
+##### Instructions
+
+100 XP
+
+- Adapt the code that builds `m1`: add a variable `loss_ratio`, which is the ratio of `loss` to `DepDelay`.
+- Create a tbl `m2` from `hflights` by adding three variables:
+- `TotalTaxi`, which is the sum of `TaxiIn` and `TaxiOut`;
+- `ActualGroundTime`, which is the difference of `ActualElapsedTime` and `AirTime`;
+- `Diff`, the difference between the two newly created variables. This column should be zero for all observations!
+
+```R
+# hflights and dplyr are ready, are you?
+
+# Add a second variable loss_ratio to the dataset: m1
+m1 <- mutate(hflights, loss = ArrDelay - DepDelay,
+loss_ratio = loss/DepDelay)
+
+# Add the three variables as described in the third instruction: m2
+m2 <- mutate(hflights,TotalTaxi = TaxiIn+TaxiOut,
+ActualGroundTime = ActualElapsedTime - AirTime,
+Diff = TotalTaxi - ActualGroundTime)
+```
+
