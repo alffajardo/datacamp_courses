@@ -714,5 +714,149 @@ Let's use `hflights` to answer another question: How many flights were overnight
   
   ```
 
-- 
+- ```R
+  # hflights is in the workspace as a tbl, with translated carrier names
+  
+  # Make an ordered per-carrier summary of hflights
+  hflights %>%
+     group_by(UniqueCarrier) %>%
+     summarize(
+       p_canc = 100 * mean(Cancelled == 1), 
+       avg_delay = mean(ArrDelay, na.rm = TRUE)
+     ) %>%
+     arrange(avg_delay, p_canc)
+  ```
+
+- # Combine group_by with mutate
+
+- You can also combine [`group_by()`](http://www.rdocumentation.org/packages/dplyr/functions/group_by) with [`mutate()`](http://www.rdocumentation.org/packages/dplyr/functions/mutate). When you mutate grouped data, [`mutate()`](http://www.rdocumentation.org/packages/dplyr/functions/mutate) will calculate the new variables independently for each group. This is particularly useful when [`mutate()`](http://www.rdocumentation.org/packages/dplyr/functions/mutate) uses the [`rank()`](http://www.rdocumentation.org/packages/base/functions/rank) function, that calculates within-group rankings. [`rank()`](http://www.rdocumentation.org/packages/base/functions/rank) takes a group of values and calculates the rank of each value within the group, e.g.
+
+- ```
+  rank(c(21, 22, 24, 23))
+  ```
+
+- has output
+
+- ```
+  [1] 1 2 4 3
+  ```
+
+- As with [`arrange()`](http://www.rdocumentation.org/packages/dplyr/functions/arrange), [`rank()`](http://www.rdocumentation.org/packages/base/functions/rank) ranks values from the smallest to the largest.
+
+- ##### Instructions
+
+- 100 XP
+
+- - `filter()` the `hflights` tbl to only keep observations for which `ArrDelay` is not `NA` and positive.
+  - Use `group_by()` on the result to group by `UniqueCarrier`.
+  - Next, use `summarize()` to calculate the average `ArrDelay` per carrier. Call this summary variable `avg`.
+  - Feed the result into a `mutate()` call: create a new variable, `rank`, calculated as `rank(avg)`.
+  - Finally, arrange by this new `rank` variable
+
+```R
+# dplyr is loaded, hflights is loaded with translated carrier names
+
+# Ordered overview of average arrival delays per carrier
+hflights %>%
+filter(!is.na(ArrDelay),ArrDelay>0) %>%
+group_by(UniqueCarrier) %>%
+summarize(avg = mean(ArrDelay)) %>%
+mutate(rank = rank(avg)) %>%
+arrange(rank)
+```
+
+# Advanced group_by exercises
+
+By now you've learned the fundamentals of `dplyr`: the five data manipulation verbs and the additional [`group_by()`](http://www.rdocumentation.org/packages/dplyr/functions/group_by)  function to discover interesting group-wise statistics. The next  challenges are an all-encompassing review of the concepts you have  learned about. We already provided you with a template of the piped call  that can solve the exercises. Up to you to finish all `dplyr` calls! For simplicity, you can include cancelled flights in your answers, so you shouldn't filter based on the `Cancelled` column.
+
+##### Instructions
+
+100 XP
+
+- How many airplanes flew to only one destination? The tbl you print out should have a single column, named `nplanes` and a single row.
+
+- Find the most visited destination for each carrier. The tbl you print out should contain four columns:
+
+- `UniqueCarrier` and `Dest`,
+
+- `n`, how often a carrier visited a particular destination,
+
+- `rank`, how each destination ranks per carrier. `rank` should be 1 for every row, as you want to find the most visited destination for each carrier.
+
+  ```R
+  # dplyr and hflights (with translated carrier names) are pre-loaded
+  
+  # How many airplanes only flew to one destination?
+  hflights %>%
+    group_by(TailNum) %>%
+    summarize(ndest = n_distinct(Dest)) %>%
+    filter(ndest == 1) %>%
+    summarize(nplanes = n())
+  
+  # Find the most visited destination for each carrier
+  hflights %>% 
+    group_by(UniqueCarrier, Dest) %>%
+    summarize(n = n()) %>%
+    mutate(rank = rank(desc(n))) %>%
+    filter(rank == 1)
+  ```
+
+  # dplyr deals with different types
+
+  `hflights2` is a copy of `hflights` that is saved as a data table. `hflights2` was made available in the background using the following code:
+
+  ```
+  library(data.table)
+  hflights2 <- as.data.table(hflights)
+  ```
+
+  `hflights2` contains all of the same information as `hflights`, but the information is stored in a different data structure. You can see this structure by typing `hflights2` at the command line. 
+
+  Even though `hflights2` is a different data structure, you can use the same `dplyr` functions to manipulate `hflights2` as you used to manipulate `hflights`.
+
+  ##### Instructions
+
+  - Use [`summarize()`](http://www.rdocumentation.org/packages/dplyr/functions/summarise) to calculate `n_carrier`, the total number of unique carriers in `hflights2`. Whether or not you use the pipe is up to you!
+
+  - ```R
+    # hflights2 is pre-loaded as a data.table
+    
+    # Use summarize to calculate n_carrier
+    hflights2 %>%
+    summarize(n_carrier = n_distinct(UniqueCarrier))
+    ```
+
+  - # dplyr and mySQL databases
+
+  - DataCamp  hosts a mySQL database with data about flights that departed from New  York City in 2013. The data is similar to the data in `hflights`, but it does not contain information about cancellations or diversions. With the `tbl()` function, we already created a reference to a table in this information. 
+
+  - Although `nycflights` is a reference to data that lives outside of R, you can use the `dplyr` commands on them as usual. Behind the scenes, `dplyr`  will convert the commands to the database's native language (in this  case, SQL), and return the results. This allows you to pull data that is  too large to fit in R: only the fraction of the data that you need will  actually be downloaded into R, which will usually fit into R without  memory issues.
+
+  - ##### Instructions
+
+  - - Try to understand the code that creates `nycflights`, a reference to a MySQL table.
+    - Use `glimpse()` to check out `nycflights`. Although `nycflights` is a reference to a tbl in a remote database, there is no difference in syntax. Look carefully: the variable names in `nycflights` differ from the ones in `hflights`!
+    - Group `nycflights` data by `carrier`, then `summarize()` with two variables: `n_flights`, the number of flights flown by each carrier and `avg_delay`, the average arrival delay of flights flown by each carrier. Finally, arrange the carriers by average delay from low to high.
+
+```R
+# Set up a connection to the mysql database
+my_db <- src_mysql(dbname = "dplyr", 
+                   host = "courses.csrrinzqubik.us-east-1.rds.amazonaws.com", 
+                   port = 3306, 
+                   user = "student",
+                   password = "datacamp")
+
+# Reference a table within that source: nycflights
+nycflights <- tbl(my_db, "dplyr")
+
+# glimpse at nycflights
+glimpse(nycflights)
+
+# Ordered, grouped summary of nycflights
+  nycflights %>%
+  group_by(carrier) %>%
+  summarize(n_flights = n(),avg_delay= mean(arr_delay)) %>%
+  arrange(avg_delay)
+  
+```
 
