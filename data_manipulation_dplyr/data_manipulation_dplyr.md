@@ -330,3 +330,389 @@ ActualGroundTime = ActualElapsedTime - AirTime,
 Diff = TotalTaxi - ActualGroundTime)
 ```
 
+# Logical operators
+
+R comes with a set of logical operators that you can use inside [`filter()`](http://www.rdocumentation.org/packages/dplyr/functions/filter):
+
+- `x < y`, `TRUE` if `x` is *less than* `y`
+- `x <= y`, `TRUE` if `x` is *less than or equal to* `y`
+- `x == y`, `TRUE` if `x` *equals* `y`
+- `x != y`, `TRUE` if `x` *does not equal* `y`
+- `x >= y`, `TRUE` if `x` *is greater than or equal to* `y`
+- `x > y`, `TRUE` if `x` is *greater than* `y`
+- `x %in% c(a, b, c)`, `TRUE` if `x` is in the vector `c(a, b, c)`
+
+The following example filters `df` such that only the observations for which `a` is positive, are kept:
+
+```
+filter(df, a > 0)
+```
+
+##### Instructions
+
+100 XP
+
+- Print out all flights in `hflights` that traveled 3000 or more miles.
+- Print out all flights in `hflights` flown by JetBlue, Southwest, or Delta.
+- Extract from `hflights` all flights where taxiing took longer than the actual flight. Avoid the use of [`mutate()`](http://www.rdocumentation.org/packages/dplyr/functions/mutate) and do the math directly in the logical expression of [`filter()`](http://www.rdocumentation.org/packages/dplyr/functions/filter).
+
+- 
+
+- ```R
+  # hflights is at your disposal as a tbl, with clean carrier names
+  
+  # All flights that traveled 3000 miles or more
+  filter(hflights, Distance >= 3000)
+  
+  # All flights flown by JetBlue, Southwest, or Delta
+  filter(hflights, UniqueCarrier %in% c("JetBlue", "Southwest", "Delta"))
+  
+  # All flights where taxiing took longer than flying
+  filter(hflights, TaxiIn + TaxiOut > AirTime)
+  ```
+
+- 
+
+# Combining tests using boolean operators
+
+R  also comes with a set of boolean operators that you can use to combine  multiple logical tests into a single test. These include `&` (and), `|` (or), and `!` (not). Instead of using the `&` operator, you can also pass several logical tests to [`filter()`](http://www.rdocumentation.org/packages/dplyr/functions/filter), separated by commas. The following two calls are completely equivalent:
+
+```
+filter(df, a > 0 & b > 0)
+filter(df, a > 0, b > 0)
+```
+
+Next, [`is.na()`](http://www.rdocumentation.org/packages/base/functions/NA) will also come in handy. This example keeps the observations in `df` for which the variable `x` is *not* `NA`:
+
+```
+filter(df, !is.na(x))
+```
+
+##### Instructions
+
+100 XP
+
+- Use R's logical and boolean operators to select just the rows where a  flight left before 5:00 am (500) or arrived after 10:00 pm (2200).
+
+- Print out all of the flights that departed late but arrived ahead of schedule. Use `DepDelay` and `ArrDelay` for this.
+
+- Find all of the flights that were cancelled after being delayed. These are flights that were cancelled, while having a `DepDelay` greater than zero.
+
+  ```R
+  # hflights is at your service as a tbl!
+  
+  # All flights that departed before 5am or arrived after 10pm
+  filter(hflights,DepTime<500 | ArrTime > 2200 )
+  
+  # All flights that departed late but arrived ahead of schedule
+  filter(hflights,DepDelay > 0,ArrDelay <0)
+  
+  # All flights that were cancelled after being delayed
+  filter(hflights,DepDelay > 0, Cancelled == 1)
+  ```
+
+  # Blend together what you've learned!
+
+  So far, you have learned three data manipulation functions in the `dplyr` package. Time for a summarizing exercise. You will generate a new dataset from the `hflights` dataset that contains some useful information on flights that had JFK airport as their destination. You will need [`select()`](http://www.rdocumentation.org/packages/dplyr/functions/select), [`mutate()`](http://www.rdocumentation.org/packages/dplyr/functions/mutate) and [`filter()`](http://www.rdocumentation.org/packages/dplyr/functions/filter).
+
+  ##### Instructions
+
+  100 XP
+
+  - First, use [`filter()`](http://www.rdocumentation.org/packages/dplyr/functions/filter) to select the flights that had JFK as their destination and save this result to `c1`.
+  - Second, add a new column named `Date` to `c1`: [`paste()`](http://www.rdocumentation.org/packages/base/functions/paste) together the `Year`, `Month` and `DayofMonth` variables, separate them by a "-" by using the `sep` attribute of [`paste()`](http://www.rdocumentation.org/packages/base/functions/paste). Save the resulting data frame as `c2`.
+  - Finally, select some columns to provide an overview: `Date`, `DepTime`, `ArrTime` and `TailNum`, in this order. Do not assign the resulting data frame to a variable; just print it to the console.
+
+  - ```R
+    # hflights is already available in the workspace
+    
+    # Select the flights that had JFK as their destination: c1
+    c1 <- filter(hflights,Dest == "JFK")
+    
+    # Combine the Year, Month and DayofMonth variables to create a Date column: c2
+    c2 <- mutate(c1,Date = paste(Year,Month,DayofMonth,sep="-"))
+    
+    # Print out a selection of columns of c2
+    select(c2,Date,DepTime,ArrTime,TailNum)
+    ```
+
+  - 
+
+[`arrange()`](http://www.rdocumentation.org/packages/dplyr/functions/arrange) can be used to rearrange rows according to any type of data. If you pass [`arrange()`](http://www.rdocumentation.org/packages/dplyr/functions/arrange)  a character variable, for example, R will rearrange the rows in  alphabetical order according to values of the variable. If you pass a  factor variable, R will rearrange the rows according to the order of the  levels in your factor (running [`levels()`](http://www.rdocumentation.org/packages/base/functions/levels) on the variable reveals this order).
+
+`dtc` has already been defined on the right. It's up to you to write some `arrange()` expressions to display its contents appropriately!
+
+##### Instructions
+
+100 XP
+
+- Arrange `dtc`, by departure delays so that the shortest departure delay is at the top of the data set.
+- Arrange `dtc` so that flights that were cancelled for the same reason appear next to each other.
+- Arrange `dtc` so that flights by the same carrier appear  next to each other. Within each carrier, flights that have smaller  departure delays appear before flights that have higher departure  delays. Do this in a one-liner.
+
+```R
+# dplyr and the hflights tbl are available
+
+# Definition of dtc
+dtc <- filter(hflights, Cancelled == 1, !is.na(DepDelay))
+
+# Arrange dtc by departure delays
+arrange(dtc,DepDelay)
+
+# Arrange dtc so that cancellation reasons are grouped
+  arrange(dtc,CancellationCode)
+
+# Arrange dtc according to carrier and departure delays
+arrange(dtc,UniqueCarrier,DepDelay)
+```
+
+# Reverse the order of arranging
+
+By default, [`arrange()`](http://www.rdocumentation.org/packages/dplyr/functions/arrange) arranges the rows from *smallest to largest*. Rows with the smallest value of the variable will appear at the top of the data set. You can reverse this behavior with the [`desc()`](http://www.rdocumentation.org/packages/dplyr/functions/desc) function. [`arrange()`](http://www.rdocumentation.org/packages/dplyr/functions/arrange) will reorder the rows from *largest to smallest* values of a variable if you wrap the variable name in [`desc()`](http://www.rdocumentation.org/packages/dplyr/functions/desc) before passing it to [`arrange()`](http://www.rdocumentation.org/packages/dplyr/functions/arrange).
+
+##### Instructions
+
+100 XP
+
+- Arrange `hflights` so that flights by the same carrier  appear next to each other and within each carrier, flights that have  larger departure delays appear before flights that have smaller  departure delays.
+- Arrange the flights in `hflights` by their total delay (the sum of `DepDelay` and `ArrDelay`). Try to do this directly inside [`arrange()`](http://www.rdocumentation.org/packages/dplyr/functions/arrange)
+
+```R
+# dplyr and the hflights tbl are available
+
+# Arrange according to carrier and decreasing departure delays
+arrange(hflights, UniqueCarrier, desc(DepDelay))
+
+# Arrange flights by total delay (normal order).
+arrange(hflights, DepDelay + ArrDelay)
+```
+
+```R
+# hflights and dplyr are loaded in the workspace
+
+# Print out a summary with variables min_dist and max_dist
+summarize(hflights, min_dist = min(Distance), max_dist = max(Distance))
+
+# Print out a summary with variable max_div
+summarize(filter(hflights, Diverted == 1), max_div = max(Distance))
+```
+
+# Aggregate functions
+
+You can use any function you like in [`summarize()`](http://www.rdocumentation.org/packages/dplyr/functions/summarise) so long as the function can take a vector of data and return a single number. R contains many *aggregating* functions, as `dplyr` calls them:
+
+- [`min(x)`](http://www.rdocumentation.org/packages/base/functions/Extremes) - minimum value of vector `x`.
+- [`max(x)`](http://www.rdocumentation.org/packages/base/functions/Extremes) - maximum value of vector `x`.
+- [`mean(x)`](http://www.rdocumentation.org/packages/base/functions/mean) - mean value of vector `x`.
+- [`median(x)`](http://www.rdocumentation.org/packages/stats/functions/median) - median value of vector `x`.
+- [`quantile(x, p)`](http://www.rdocumentation.org/packages/stats/functions/quantile) - `p`th quantile of vector `x`.
+- [`sd(x)`](http://www.rdocumentation.org/packages/stats/functions/sd) - standard deviation of vector `x`.
+- [`var(x)`](http://www.rdocumentation.org/packages/stats/functions/cor) - variance of vector `x`.
+- [`IQR(x)`](http://www.rdocumentation.org/packages/stats/functions/IQR) - Inter Quartile Range (IQR) of vector `x`.
+- `diff(range(x))` - total range of vector `x`.
+
+##### Instructions
+
+100 XP
+
+- Remove rows that have `NA`s in the arrival delay column and save the resulting dataset to `temp1`. 
+
+- Print out a summary of `temp1` with the following variables (in this order):
+
+- `earliest`: the minimum arrival delay,
+
+- `average`: the average arrival delay,
+
+- `latest`: the longest arrival delay,
+
+- `sd`: the standard deviation for arrival delays.
+
+- Filter `hflights` such that only rows that have no NA `TaxiIn` *and* no NA `TaxiOut` are kept; save this temporary result to `temp2`. 
+
+- Print out a summary of `temp2`, with one variable, `max_taxi_diff`: the biggest absolute difference in time between `TaxiIn` and `TaxiOut` for a single flight.
+
+  ```R
+  # hflights is available
+  
+  # Remove rows that have NA ArrDelay: temp1
+  temp1 <- filter(hflights,!is.na(ArrDelay))
+  
+  # Generate summary about ArrDelay column of temp1
+  summarize(temp1,earliest = min(ArrDelay),
+  average = mean(ArrDelay),
+  latest = max(ArrDelay),
+  sd = sd(ArrDelay))
+  
+  # Keep rows that have no NA TaxiIn and no NA TaxiOut: temp2
+  temp2 <- filter(hflights,!is.na(TaxiIn),!is.na(TaxiOut))
+  
+  # Print the maximum taxiing difference of temp2 with summarize()
+  summarize(temp2,max_taxi_diff= max(abs(TaxiOut - TaxiIn)))
+  ```
+
+  
+
+# dplyr aggregate functions
+
+`dplyr` provides several helpful aggregate functions of its own, in addition to the ones that are already defined in R. These include:
+
+- [`first(x)`](http://www.rdocumentation.org/packages/dplyr/functions/nth) - The first element of vector `x`.
+- [`last(x)`](http://www.rdocumentation.org/packages/dplyr/functions/nth) - The last element of vector `x`.
+- [`nth(x, n)`](http://www.rdocumentation.org/packages/dplyr/functions/nth) - The `n`th element of vector `x`.
+- [`n()`](http://www.rdocumentation.org/packages/dplyr/functions/n) - The number of rows in the data.frame or group of observations that [`summarize()`](http://www.rdocumentation.org/packages/dplyr/functions/summarise) describes.
+- [`n_distinct(x)`](http://www.rdocumentation.org/packages/dplyr/functions/n_distinct) - The number of unique values in vector `x`.
+
+Next to these `dplyr`-specific functions, you can also turn a logical test into an aggregating function with [`sum()`](http://www.rdocumentation.org/packages/base/functions/sum) or [`mean()`](http://www.rdocumentation.org/packages/base/functions/mean). A logical test returns a vector of `TRUE`'s and `FALSE`'s. When you apply [`sum()`](http://www.rdocumentation.org/packages/base/functions/sum) or [`mean()`](http://www.rdocumentation.org/packages/base/functions/mean) to such a vector, R coerces each `TRUE` to a 1 and each `FALSE` to a 0. [`sum()`](http://www.rdocumentation.org/packages/base/functions/sum) then represents the total number of observations that passed the test; [`mean()`](http://www.rdocumentation.org/packages/base/functions/mean) represents the proportion.
+
+##### Instructions
+
+100 XP
+
+- Print out a summary of `hflights` with the following variables:
+- `n_obs`: the total number of observations,
+- `n_carrier`: the total number of carriers,
+- `n_dest`: the total number of destinations,
+- `aa`, a tbl with all flights flown by American Airlines, is already available.
+- Print out a summary of `aa` with the following variables:
+- `n_flights`: the total number of flights (each observation is a flight),
+- `n_canc`: the total number of cancelled flights,
+- `avg_delay`: the average arrival delay of flights whose delay is not `NA` (`na.rm = TRUE`).
+
+```R
+# hflights is available with full names for the carriers
+
+# Generate summarizing statistics for hflights
+summarize(hflights, 
+          n_obs = n(), 
+          n_carrier = n_distinct(UniqueCarrier), 
+          n_dest = n_distinct(Dest))
+
+# All American Airline flights
+aa <- filter(hflights, UniqueCarrier == "American")
+
+# Generate summarizing statistics for aa 
+summarize(aa, 
+          n_flights = n(), 
+          n_canc = sum(Cancelled == 1),
+          avg_delay = mean(ArrDelay, na.rm = TRUE))
+```
+
+# Overview of syntax
+
+As another example of the `%>%`, have a look at the following two commands that are completely equivalent:
+
+```
+mean(c(1, 2, 3, NA), na.rm = TRUE)
+c(1, 2, 3, NA) %>% mean(na.rm = TRUE)
+```
+
+The `%>%` operator allows you to extract the first  argument of a function from the arguments list and put it in front of  it, thus solving the *Dagwood sandwich problem*.
+
+##### Instructions
+
+100 XP
+
+Use `dplyr` functions and the pipe operator to transform the following English sentences into R code:
+
+- Take the hflights data set *and then* ...
+- Add a variable named `diff` that is the result of subtracting `TaxiIn` from `TaxiOut`, *and then* ...
+- Pick all of the rows whose `diff` value does not equal `NA`, *and then* ...
+- Summarize the data set with a value named `avg` that is the mean `diff` value.
+
+- ```R
+  # hflights and dplyr are both loaded and ready to serve you
+  
+  # Write the 'piped' version of the English sentences.
+  hflights %>%
+  mutate(diff = TaxiOut - TaxiIn) %>%
+  filter(!is.na(diff))%>%
+  summarize(avg = mean(diff))
+  ```
+
+
+Drive or fly? Part 1 of 2
+
+You can answer sophisticated questions by combining the verbs of dplyr. Over the next few exercises you will examine whether it sometimes makes sense to drive instead of fly. You will begin by making a data set that contains relevant variables. Then, you will find flights whose equivalent average velocity is lower than the velocity when traveling by car.
+
+In the following instructions, you have to carry out a series of dplyr verbs on the hflights dataset. Make sure to use the %>% operator to chain them all together.
+Instructions
+100 XP
+
+```R
+mutate() the hflights dataset and add two variables:
+    RealTime: the actual elapsed time plus 100 minutes (for the overhead that flying involves) and
+    mph: calculated as 60 times Distance divided by RealTime, then
+filter() to keep observations that have an mph that is not NA and that is below 70, finally
+summarize() the result by creating four summary variables:
+    n_less, the number of observations,
+    n_dest, the number of destinations,
+    min_dist, the minimum distance and
+    max_dist, the maximum distance.
+```
+```R
+# Chain together mutate(), filter() and summarize()
+hflights %>%
+mutate(RealTime = ActualElapsedTime+ 100,mph = (60*Distance)/RealTime) %>%
+filter(!is.na(mph) & mph <70) %>%
+summarize(n_less = n(),n_dest = n_distinct(Dest),
+min_dist = min(Distance),
+max_dist = max(Distance))
+```
+
+# Drive or fly? Part 2 of 2
+
+The  previous exercise suggested that some flights might be less efficient  than driving in terms of speed. But is speed all that matters? Flying  imposes burdens on a traveler that driving does not. For example,  airplane tickets are very expensive. Air travelers also need to limit  what they bring on their trip and arrange for a pick up or a drop off.  Given these burdens we might demand that a flight provide a large speed  advantage over driving.
+
+Let's define preferable flights as flights that are at least 50%  faster than driving, i.e. that travel 105 mph or greater in real time.  Also, assume that cancelled or diverted flights are less preferable than  driving. 
+
+The `mutate()` call from the previous exercise is already coded up; can you add more pipes and verbs to the command?
+
+##### Instructions
+
+100 XP
+
+- `filter()` the result of mutate to:
+- keep observations that have an `mph` under 105 *or* for which `Cancelled` equals 1 *or* for which `Diverted` equals 1.
+- `summarize()` the result by creating four summary variables:
+- `n_non`, the number of observations,
+- `n_dest`, the number of destinations,
+- `min_dist`, the minimum distance and
+- `max_dist`, the maximum distance.
+
+```R
+# Finish the command with a filter() and summarize() call
+hflights %>%
+  mutate(
+    RealTime = ActualElapsedTime + 100, 
+    mph = 60 * Distance / RealTime
+  ) %>%
+filter(mph < 105 | Cancelled ==1 | Diverted ==1) %>%
+summarize(n_non = n(),
+n_dest = n_distinct(Dest),
+min_dist = min(Distance),
+max_dist = max(Distance))
+```
+
+# Advanced piping exercise
+
+Let's use `hflights` to answer another question: How many flights were overnight flights?
+
+##### Instructions
+
+100 XP
+
+- `filter()` the `hflights` tbl to keep only observations whose `DepTime` is not `NA`, whose `ArrTime` is not `NA` and for which `DepTime` exceeds `ArrTime`.
+- Pipe the result into a `summarize()` call to create a single summary variable: `num`, that simply counts the number of observations.
+
+- ```R
+  # hflights and dplyr are loaded
+  
+  # Count the number of overnight flights
+  hflights %>%
+  filter(!is.na(DepTime),!is.na(ArrTime),DepTime >ArrTime) %>%
+  summarize(num = n())
+  
+  ```
+
+- 
+
