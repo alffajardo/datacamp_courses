@@ -57,7 +57,33 @@ You're encouraged to think about how the examples and concepts we  discuss throu
 100 XP
 
 - `ggplot2` has already been loaded for you. Take a look at  the first command. It plots the mpg (miles per gallon) against the  weight (in thousands of pounds). You don't have to change anything about  this command.
-- In the second call of [`ggplot()`](http://www.rdocumentation.org/packages/ggplot2/functions/ggplot) **change** the `color` argument in [`aes()`](http://www.rdocumentation.org/packages/ggplot2/functions/aes) (which stands for *aesthetics*). The color should be dependent on the displacement of the car engine, found in `disp`.
+
+- In the second call of [`ggplot()`](http://www.rdocumentation.org/packages/ggplot2/functions/ggplot) **change** the `color` argument in [`aes()`](http://www.rdocumentation.org/packages/ggplot2/functions/aes) (which stands for *aesthetics*). The color should be dependent on the displacement of the car engine, found in `disp`.Choosing geoms, part 2 - dotplot
+
+  Some naming conventions:
+
+      Scatter plots:
+      Continuous x, continuous y.
+      Dot plots:
+      Categorical x, continuous y.
+
+  You use geom_point() for both plot types. Jittering position is set in the geom_point() layer.
+
+  However, to make a "true" dot plot, you can use geom_dotplot(). The difference is that unlike geom_point(), geom_dotplot() uses a binning statistic. Binning means to cut up a continuous variable (the y in this case) into discrete "bins". You already saw binning with geom_histogram() (see this exercise for a refresher).
+
+  One thing to notice is that geom_dotplot() uses a different plotting symbol to geom_point(). For these symbols, the color aesthetic changes the color of its border, and the fill aesthetic changes the color of its interior.
+
+  Let's take a look at how the two geoms compare.
+  Instructions
+  100 XP
+
+  A "basic" dot plot is shown in the viewer (see the code in the editor). Here, cyl (categorical) is mapped onto the x and wt (continuous) is mapped onto the y aesthetic. For this exercise we've already converted am to a factor variable for you.
+
+      1 - Re-draw that plot in the viewer as a "true" dot plot.
+          Add a dotplot geom by calling geom_dotplot().
+          Set the arguments stackdir = "center" and binaxis = "y". These are our standard settings, but take a look at the help pages and try different settings to get familiar with these arguments.
+      2 - Convert the previous ggplot() command to a qplot() command.
+
 - In the third call of [`ggplot()`](http://www.rdocumentation.org/packages/ggplot2/functions/ggplot) **change** the `size` argument in [`aes()`](http://www.rdocumentation.org/packages/ggplot2/functions/aes) (which stands for *aesthetics*). The size should be dependent on the displacement of the car engine, found in `disp`.
 
 ```R
@@ -225,8 +251,31 @@ mtcars$fcyl <- as.factor(mtcars$cyl)
 plot(mtcars$wt, mtcars$mpg, col = mtcars$fcyl)
 ```
 
-# base package and ggplot2, part 2 - lm
+# base package and ggplot2, pChoosing geoms, part 2 - dotplot
 
+Some naming conventions:
+
+    Scatter plots:
+    Continuous x, continuous y.
+    Dot plots:
+    Categorical x, continuous y.
+
+You use geom_point() for both plot types. Jittering position is set in the geom_point() layer.
+
+However, to make a "true" dot plot, you can use geom_dotplot(). The difference is that unlike geom_point(), geom_dotplot() uses a binning statistic. Binning means to cut up a continuous variable (the y in this case) into discrete "bins". You already saw binning with geom_histogram() (see this exercise for a refresher).
+
+One thing to notice is that geom_dotplot() uses a different plotting symbol to geom_point(). For these symbols, the color aesthetic changes the color of its border, and the fill aesthetic changes the color of its interior.
+
+Let's take a look at how the two geoms compare.
+Instructions
+100 XP
+
+A "basic" dot plot is shown in the viewer (see the code in the editor). Here, cyl (categorical) is mapped onto the x and wt (continuous) is mapped onto the y aesthetic. For this exercise we've already converted am to a factor variable for you.
+
+    1 - Re-draw that plot in the viewer as a "true" dot plot.
+        Add a dotplot geom by calling geom_dotplot().
+        Set the arguments stackdir = "center" and binaxis = "y". These are our standard settings, but take a look at the help pages and try different settings to get familiar with these arguments.
+    2 - Convert the previous ggplot() command to a qplot() command.art 2 - lm
 If you want to add a linear model to your plot, shown right, you can define it with [`lm()`](http://www.rdocumentation.org/packages/stats/functions/lm) and then plot the resulting linear model with [`abline()`](http://www.rdocumentation.org/packages/graphics/functions/abline). However, if you want a model for each subgroup, according to cylinders, then you have a couple of options.
 
 You can subset your data, and then calculate the [`lm()`](http://www.rdocumentation.org/packages/stats/functions/lm) and plot each subset separately. Alternatively, you can vectorize over the `cyl` variable using [`lapply()`](http://www.rdocumentation.org/packages/base/functions/lapply) and combine this all in one step. This option is already prepared for you.
@@ -1088,3 +1137,520 @@ ggplot(mtcars, aes(x = cyl, fill = am)) +
   geom_bar(position = posn_d,alpha = 0.6)
 ```
 
+# Overlapping histograms
+
+Overlapping histograms pose similar problems to overlapping bar plots, but there is a unique solution here: a frequency polygon.
+
+This is a geom specific to binned data that draws a line connecting the value of each bin. Like [`geom_histogram()`](http://www.rdocumentation.org/packages/ggplot2/functions/geom_histogram), it takes a `binwidth` argument and by default `stat = "bin"` and `position = "identity"`.
+
+##### Instructions
+
+100 XP
+
+- The code for a basic histogram of `mpg`, which you've already seen, is provided. Extend the code to map `cyl` onto `fill` inside [`aes()`](http://www.rdocumentation.org/packages/ggplot2/functions/aes).
+
+- The default position for histograms is `"stack"`. Copy your solution to the first exercise and set the position for the histogram bars to `"identity"`.
+
+- Using the same data and base layers as in the previous two plots, create a plot with a [`geom_freqpoly()`](http://www.rdocumentation.org/packages/ggplot2/functions/geom_histogram). Because you're no longer working with bars, change the [`aes()`](http://www.rdocumentation.org/packages/ggplot2/functions/aes) function: `cyl` should be mapped onto `color`, not onto `fill`. This will correctly color the geom.
+
+  ```R
+   A basic histogram, add coloring defined by cyl
+  ggplot(mtcars, aes(mpg, fill = cyl)) +
+    geom_histogram(binwidth = 1)
+  
+  # Change position to identity
+  ggplot(mtcars, aes(mpg, fill = cyl)) +
+    geom_histogram(binwidth = 1, position = "identity")
+  
+  # Change geom to freqpoly (position is identity by default)
+  ggplot(mtcars, aes(mpg, color = cyl)) +
+    geom_freqpoly(binwidth = 1)
+  ```
+
+  Bar plots with color ramp, part 1
+
+  In this example of a bar plot, you'll fill each segment according to an ordinal variable. The best way to do that is with a sequential color series.
+
+  You'll be using the Vocab dataset from earlier. Since this is a much larger dataset with more categories, you'll also compare it to a simpler dataset, mtcars. Both datasets are ordinal.
+  Instructions
+  100 XP
+
+  ```R
+  The bar plot from the previous exercise is provided - cyl is on the x-axis and filled according to transmission type, am. Notice how you can set the color palette used to fill the bars with scale_fill_brewer(). For a full list of possible color sets, have a look at ?brewer.pal.
+  Explore Vocab with str(). Notice that the education and vocabulary variables have already been converted to factor variables for you.
+  Make a filled bar chart with the Vocab dataset.
+      Map education to x and vocabulary to fill.
+      Inside geom_bar(), make sure to set position = "fill".
+      Allow color brewer to choose a default color palette by using the appropriate scale function, without arguments. Notice how this generates a warning message and an incomplete plot.
+  ```
+
+```R
+# Example of how to use a brewed color palette
+ggplot(mtcars, aes(x = cyl, fill = am)) +
+  geom_bar() +
+  scale_fill_brewer(palette = "Set1")
+
+# Use str() on Vocab to check out the structure
+str(Vocab)
+
+# Plot education on x and vocabulary on fill
+# Use the default brewed color palette
+ggplot(data = Vocab,mapping = aes(x = education, fill = vocabulary))+
+geom_bar(position = "fill")+
+scale_fill_brewer()
+```
+
+# Bar plots with color ramp, part 2
+
+In the previous exercise, you ended up with an incomplete bar plot. This was because for continuous data, the default `RColorBrewer` palette that  [`scale_fill_brewer()`](http://www.rdocumentation.org/packages/ggplot2/functions/scale_brewer) calls is `"Blues"`. There are only 9 colours in the palette, and since you have 11 categories, your plot looked strange.
+
+In this exercise, you'll manually create a color palette that can  generate all the colours you need. To do this you'll use a function  called [`colorRampPalette()`](http://www.rdocumentation.org/packages/grDevices/functions/colorRamp).
+
+The *input* is a character vector of 2 or more colour values, e.g. `"#FFFFFF"` (white) and `"#0000FF"` (pure blue). (See [this](https://campus.datacamp.com/courses/data-visualization-with-ggplot2-1/chapter-3-aesthetics?ex=5) exercise for a discussion on hexadecimal codes).
+
+The *output* is itself a function! So when you assign it to an  object, that object should be used as a function. To see what we mean,  execute the following three lines in the console:
+
+```
+new_col <- colorRampPalette(c("#FFFFFF", "#0000FF"))
+new_col(4) # the newly extrapolated colours
+munsell::plot_hex(new_col(4)) # Quick and dirty plot
+```
+
+`new_col()` is a function that takes one argument: the  number of colours you want to extrapolate. You want to use nicer  colours, so we've assigned the entire `"Blues"` colour palette from the `RColorBrewer` package to the character vector `blues`.
+
+##### Instructions
+
+100 XP
+
+- 1 - Like in the example code above, create a new function called `blue_range` that uses [`colorRampPalette()`](http://www.rdocumentation.org/packages/grDevices/functions/colorRamp) to extrapolate over all 9 values of the `blues` character vector.
+- 2 - Take the plot code from the last exercise (provided), and change [`scale_fill_brewer()`](http://www.rdocumentation.org/packages/ggplot2/functions/scale_brewer) to be [`scale_fill_manual()`](http://www.rdocumentation.org/packages/ggplot2/functions/scale_manual). Set the argument `values = blue_range(11)` inside [`scale_fill_manual()`](http://www.rdocumentation.org/packages/ggplot2/functions/scale_manual).
+
+```R
+# Final plot of last exercise
+ggplot(Vocab, aes(x = education, fill = vocabulary)) +
+  geom_bar(position = "fill") +
+  scale_fill_brewer()
+
+# Definition of a set of blue colors
+blues <- brewer.pal(9, "Blues")
+
+# Make a color range using colorRampPalette() and the set of blues
+blue_range <- colorRampPalette(blues)
+
+# Use blue_range to adjust the color of the bars, use scale_fill_manual()
+ggplot(Vocab, aes(x = education, fill = vocabulary)) +
+  geom_bar(position = "fill") +
+  scale_fill_manual(values = blue_range(11))
+```
+
+# Overlapping histograms (2)
+
+As  a last example of bar plots, you'll return to histograms (which you now  see are just a special type of bar plot). You saw a nice trick in a  previous exercise of how to slightly overlap bars, but now you'll see  how to overlap them completely. This would be nice for multiple  histograms, as long as there are not too many different overlaps!
+
+You'll make a histogram using the `mpg` variable in the `mtcars` data frame.
+
+##### Instructions
+
+100 XP
+
+- 1 - A basic histogram plot is provided.
+- 2 - Take plot 1 and map `am` onto `fill` within the [`aes()`](http://www.rdocumentation.org/packages/ggplot2/functions/aes) function. The default position is `"stack"`.
+- 3 - Take plot 2 and add the `position` argument within [`geom_histogram()`](http://www.rdocumentation.org/packages/ggplot2/functions/geom_histogram). Set it to `"dodge"`.
+- 4 - Take plot 3 and change the `position` argument to `"fill"`. In this case, none of these positions really work well, because it's difficult to compare the distributions directly.
+- 5 - Take plot 4 and change the `position` argument to `"identity"` and set `alpha = 0.4`. This produces overlapping bars.
+- 6 - Take plot 5 and change the aesthetic mapping. Map `cyl` onto `fill`.
+
+```R
+# 1 - Basic histogram plot command
+ggplot(mtcars, aes(mpg)) +
+  geom_histogram(binwidth = 1)
+
+# 2 - Plot 1, Expand aesthetics: am onto fill
+ggplot(mtcars, aes(mpg,fill = am)) +
+  geom_histogram(binwidth = 1, position = "stack")
+
+
+# 3 - Plot 2, change position = "dodge"
+ggplot(mtcars, aes(mpg,fill = am)) +
+  geom_histogram(binwidth = 1, position = "dodge")
+
+
+# 4 - Plot 3, change position = "fill"
+# 3 - Plot 2, change position = "dodge"
+ggplot(mtcars, aes(mpg,fill = am)) +
+  geom_histogram(binwidth = 1, position = "fill")
+
+
+# 5 - Plot 4, plus change position = "identity" and alpha = 0.4
+ggplot(mtcars, aes(mpg,fill = am)) +
+  geom_histogram(binwidth = 1, position = "identity",alpha = 0.4)
+
+
+# 6 - Plot 5, plus change mapping: cyl onto fill
+ggplot(mtcars, aes(mpg,fill = cyl)) +
+  geom_histogram(binwidth = 1, position = "identity",alpha = 0.4)
+```
+
+## Line plots
+
+In the video you saw how to make line plots using time series data. To explore this topic, you'll use the `economics`  data frame, which contains time series for unemployment and population  statistics from the Federal Reserve Bank of St. Louis in the US. The  data is contained in the `ggplot2` package.
+
+To begin with, you can look at how the median unemployment time and  the unemployment rate (the number of unemployed people as a proportion  of the population) change over time.
+
+In the next exercises, you'll explore to how add embellishments to the line plots, such as recession periods.
+
+##### Instructions
+
+100 XP
+
+- Print out the [`head()`](http://www.rdocumentation.org/packages/utils/functions/head) of the `economics` data frame.
+- Use the `economics` data frame to plot `date` on the x axis and `unemploy` on the y-axis. Use [`geom_line()`](http://www.rdocumentation.org/packages/ggplot2/functions/geom_path).
+- Copy, paste and adjust the code for the previous instruction: instead of `unemploy`, plot `unemploy/pop` to represent the fraction of the total population that is unemployed.
+
+```R
+# Print out head of economics
+head(economics)
+
+# Plot unemploy as a function of date using a line plot
+ggplot(economics, aes(x = date, y = unemploy)) +
+geom_line()
+
+
+# Adjust plot to represent the fraction of total population that is unemployed
+ggplot(economics, aes(x = date, y = unemploy/pop)) +
+geom_line()
+
+```
+
+​	Periods of recession
+
+By  themselves, time series often contain enough valuable information, but  you always want to maximize the number of variables you can show in a  plot. This allows you (and your viewers) to begin making comparisons  between those variables that would otherwise be difficult or impossible.
+
+Here, you'll add shaded regions to the background to indicate  recession periods. How do unemployment rate and recession period  interact with each other?
+
+In addition to the `economics` dataset from before, you'll also use the `recess` dataset for the periods of recession. The `recess` data frame contains 2 variables: the `begin` period of the recession and the `end`. It's already available in your workspace.
+
+##### Instructions
+
+100 XP
+
+Expand the command from the previous exercise with [`geom_rect()`](http://www.rdocumentation.org/packages/ggplot2/functions/geom_tile). You will use this geom layer to draw rectangles across the recession periods. There are a few pitfalls here:
+
+- [`geom_rect()`](http://www.rdocumentation.org/packages/ggplot2/functions/geom_tile) uses the `recess` dataset, so pass this directly as `data = recess` inside [`geom_rect()`](http://www.rdocumentation.org/packages/ggplot2/functions/geom_tile).
+
+- The [`geom_rect()`](http://www.rdocumentation.org/packages/ggplot2/functions/geom_tile) command shouldn't inherit aesthetics from the base [`ggplot()`](http://www.rdocumentation.org/packages/ggplot2/functions/ggplot) command it belongs to. It would result in an error, since you're using a different dataset and it doesn't contain `unemploy` or `pop`. That's why you should specify `inherit.aes = FALSE` in [`geom_rect()`](http://www.rdocumentation.org/packages/ggplot2/functions/geom_tile).
+
+- [`geom_rect()`](http://www.rdocumentation.org/packages/ggplot2/functions/geom_tile) needs four aesthetics: `xmin`, `xmax`, `ymin` and `ymax`. These should be set to `begin`, `end` and `-Inf`, `+Inf`, respectively. Define them within `aes()`.
+
+- The rectangles you add will be black and opaque by default. Set `fill` to `"red"` and `alpha` to `0.2` to improve this. Define them outside `aes()`.
+
+  ```R
+  # Basic line plot
+  ggplot(economics, aes(x = date, y = unemploy/pop)) +
+    geom_line()
+  
+  # Expand the following command with geom_rect() to draw the recess periods
+  ggplot(economics, aes(x = date, y = unemploy/pop)) +
+    geom_rect(data= recess,
+           aes( xmin=  begin , xmax = end, ymin = -Inf, ymax = +Inf),
+           inherit.aes = FALSE, color= "red", alpha= 0.2) +
+    geom_line()
+  ```
+
+  # Multiple time series, part 1
+
+  In  the data chapter we discussed how the form of your data affects how you  can plot it. Here, you'll explore that topic in the context of multiple  time series.
+
+  The dataset you'll use contains the global capture rates of seven salmon species from 1950 - 2010.
+
+  In your workspace, the following dataset is available:
+
+  - `fish.species`: Each variable (column) is a Salmon `Species` and each observation (row) is one `Year`.
+
+  To get a multiple time series plot, however, both `Year` and `Species`  should be in their own column. You need tidy data: one variable per  column. Once you have that you can get the plot shown in the viewer by  mapping `Year` to the x aesthetic and `Species` to the color aesthetic.
+
+  You'll use the `gather()` function of the `tidyr` package, which is already loaded for you.
+
+  ##### Instructions
+
+  100 XP
+
+  - Use [`gather()`](http://www.rdocumentation.org/packages/tidyr/functions/gather) to move from `fish.species` to a tidy data frame, `fish.tidy`. This data frame should have three columns: `Year` (int), `Species` (factor) and `Capture` (int).
+
+  - [`gather()`](http://www.rdocumentation.org/packages/tidyr/functions/gather) takes four arguments: the original data frame (`fish.species`), the name of the key column (`Species`), the name of the value column (`Capture`) and the name of the grouping variable, with a minus in front (`-Year`). They can all be specified as object names (i.e. no `""`).
+
+    ```R
+    # Check the structure as a starting point
+    str(fish.species)
+    
+    # Use gather to go from fish.species to fish.tidy
+    fish.tidy <- fish.species %>% gather(Species,Capture, -Year)
+    ```
+
+    ## Multiple time series, part 2
+
+    Now that you have tidy data, you're ready to make your plot! The data frame `fish.tidy` is already available in the workspace, so you can start right away!
+
+    ##### Instructions
+
+    100 XP
+
+    Use `ggplot2` and everything you've learned to recreate the plot shown on the right.`
+
+```R
+# Recreate the plot shown on the right
+ggplot(fish.tidy, aes(x = Year, y = Capture,color = Species)) +
+geom_line()
+```
+
+# Using qplot
+
+For simple exploratory plots, there are a variety of functions available. `ggplot2` offers a powerful and diverse array of functions, but [`qplot()`](http://www.rdocumentation.org/packages/ggplot2/functions/qplot) allows for quick and dirty plots. Plus, you should also be familiar with basic plotting notation.
+
+##### Instructions
+
+100 XP
+
+- Have a look at the base R plotting function. It plots `mpg` on the y-axis against `wt` on the x-axis. Create the same plot using [`ggplot()`](http://www.rdocumentation.org/packages/ggplot2/functions/ggplot).
+- Create the same plot using [`qplot()`](http://www.rdocumentation.org/packages/ggplot2/functions/qplot).
+
+```R
+# The old way (shown)
+plot(mpg ~ wt, data = mtcars) # formula notation
+with(mtcars, plot(wt, mpg)) # x, y notation
+
+# Using ggplot:
+ggplot(mtcars, aes(x = wt, y = mpg)) +
+ geom_point()
+
+# Using qplot:
+qplot(wt,mpg, data = mtcars)
+
+```
+
+# Using aesthetics
+
+You  already saw how some aesthetics are only applicable to categorical  variables, such as shapes and linetypes. But just because others, such  as size and color (and hence fill), can be applied to both categorical  and continuous variables, doesn't mean that they're suitable for both.
+
+##### Instructions
+
+100 XP
+
+- A basic scatter plot of `mpg` vs. `wt` from the `mtcars` dataset, made with `qplot()`, is provided.
+- Using [`qplot()`](http://www.rdocumentation.org/packages/ggplot2/functions/qplot), map the categorical variable `cyl` onto `size`. Remember, you'll have to wrap the variable name in a `factor()` function to convert to a categorical variable.
+- Use [`qplot()`](http://www.rdocumentation.org/packages/ggplot2/functions/qplot) again to the same plot, except with `gear` mapped onto `size`.
+- Using [`qplot()`](http://www.rdocumentation.org/packages/ggplot2/functions/qplot), map the continuous variable `hp` onto `color`.
+- Use [`qplot()`](http://www.rdocumentation.org/packages/ggplot2/functions/qplot) again to the same plot, except with `qsec` mapped onto `color`.
+
+```R
+# basic qplot scatter plot:
+qplot(wt, mpg, data = mtcars)
+
+# Categorical variable mapped onto size:
+# cyl
+qplot(wt, mpg, data = mtcars, size =factor(cyl))
+
+# gear
+qplot(wt, mpg, data = mtcars, size =factor(gear))
+
+# Continuous variable mapped onto col:
+# hp
+qplot(wt, mpg, data = mtcars, color = hp)
+
+# qsec
+qplot(wt, mpg, data = mtcars, color = qsec)
+```
+
+​	Choosing geoms, part 1
+
+`qplot` automatically takes care of assigning a geom to our plot given the type of data, but you can specify the geom yourselves.
+
+##### Instructions
+
+100 XP
+
+- Make a quick plot using [`qplot()`](http://www.rdocumentation.org/packages/ggplot2/functions/qplot). Use the `mtcars` dataset and plot only `factor(cyl)` onto `x`. Which geom does [`qplot()`](http://www.rdocumentation.org/packages/ggplot2/functions/qplot) choose?
+
+- Extend the previous [`qplot()`](http://www.rdocumentation.org/packages/ggplot2/functions/qplot) command so that it maps `factor(vs)` onto `y`. Which geom does [`qplot()`](http://www.rdocumentation.org/packages/ggplot2/functions/qplot) use now?
+
+- The previous plot had overlapping points. For the last instruction, copy the previous [`qplot()`](http://www.rdocumentation.org/packages/ggplot2/functions/qplot), but manually set `geom` to `"jitter"` in [`qplot()`](http://www.rdocumentation.org/packages/ggplot2/functions/qplot).
+
+  ```R
+  # qplot() with x only
+  qplot(data = mtcars,factor(cyl))
+  
+  # qplot() with x and y
+  qplot(factor(cyl),factor(vs),data=mtcars)
+  
+  # qplot() with geom set to jitter manually
+  qplot(factor(cyl),factor(vs),data=mtcars,geom="jitter")
+  ```
+
+  
+
+  Choosing geoms, part 2 - dotplot
+
+  Some naming conventions:
+
+      Scatter plots:
+      Continuous x, continuous y.
+      Dot plots:
+      Categorical x, continuous y.
+
+  You use geom_point() for both plot types. Jittering position is set in the geom_point() layer.
+
+  However, to make a "true" dot plot, you can use geom_dotplot(). The difference is that unlike geom_point(), geom_dotplot() uses a binning statistic. Binning means to cut up a continuous variable (the y in this case) into discrete "bins". You already saw binning with geom_histogram() (see this exercise for a refresher).
+
+  One thing to notice is that geom_dotplot() uses a different plotting symbol to geom_point(). For these symbols, the color aesthetic changes the color of its border, and the fill aesthetic changes the color of its interior.
+
+  Let's take a look at how the two geoms compare.
+  Instructions
+  100 XP
+
+  A "basic" dot plot is shown in the viewer (see the code in the editor). Here, cyl (categorical) is mapped onto the x and wt (continuous) is mapped onto the y aesthetic. For this exercise we've already converted am to a factor variable for you.
+
+  ```R
+  	# qplot() with x only
+  qplot(data = mtcars,factor(cyl))
+  
+  # qplot() with x and y
+  qplot(factor(cyl),factor(vs),data=mtcars)
+  
+  # qplot() with geom set to jitter manually
+  qplot(factor(cyl),factor(vs),data=mtcars,geom="jitter")
+  ```
+
+
+# Choosing geoms, part 2 - dotplot
+
+Some naming conventions:
+
+    Scatter plots:
+    Continuous x, continuous y.
+    Dot plots:
+    Categorical x, continuous y.
+
+You use geom_point() for both plot types. Jittering position is set in the geom_point() layer.
+
+However, to make a "true" dot plot, you can use geom_dotplot(). The difference is that unlike geom_point(), geom_dotplot() uses a binning statistic. Binning means to cut up a continuous variable (the y in this case) into discrete "bins". You already saw binning with geom_histogram() (see this exercise for a refresher).
+
+One thing to notice is that geom_dotplot() uses a different plotting symbol to geom_point(). For these symbols, the color aesthetic changes the color of its border, and the fill aesthetic changes the color of its interior.
+
+Let's take a look at how the two geoms compare.
+Instructions
+100 XP
+
+A "basic" dot plot is shown in the viewer (see the code in the editor). Here, cyl (categorical) is mapped onto the x and wt (continuous) is mapped onto the y aesthetic. For this exercise we've already converted am to a factor variable for you.
+
+    1 - Re-draw that plot in the viewer as a "true" dot plot.
+        Add a dotplot geom by calling geom_dotplot().
+        Set the arguments stackdir = "center" and binaxis = "y". These are our standard settings, but take a look at the help pages and try different settings to get familiar with these arguments.
+    2 - Convert the previous ggplot() command to a qplot() command.
+```R
+# cyl and am are factors, wt is numeric
+class(mtcars$cyl)
+class(mtcars$am)
+class(mtcars$wt)
+
+# "Basic" dot plot, with geom_point():
+ggplot(mtcars, aes(cyl, wt, col = am)) +
+  geom_point(position = position_jitter(0.2, 0))
+
+# 1 - "True" dot plot, with geom_dotplot():
+ggplot(mtcars, aes(cyl, wt, fill = am)) +
+  geom_dotplot( binaxis= "y", stackdir = "center")
+
+# 2 - qplot with geom "dotplot", binaxis = "y" and stackdir = "center"
+qplot(
+  cyl,wt,
+  data = mtcars,
+  fill = am,
+  geom = "dotplot",
+  binaxis = "y",
+  stackdir = "center"
+)
+```
+
+Chicken weight
+
+The ChickWeight dataset is a data frame which represents the progression of weight of several chicks. The little chicklings are each given a specific diet. There are four types of diet and the farmer wants to know which one fattens the chicks the fastest.
+
+It's time to do some exploratory statistics on the data frame using the techniques you learned in this course! Let's do some ggplot-ing!
+Instructions
+100 XP
+
+1 - Execute head(ChickWeight) to check the first few rows of this dataset. Looks like the data is pretty tidy!
+2 - Plot a line for each chick.
+    Use ggplot() and map Time to x and weight to y within the aes() function.
+    Add geom_line() at the end to draw the lines.
+    To draw one line per chick, add group = Chick to the aes() of geom_line().
+    Oops! That looks pretty chaotic and you can't really conclude anything from it. Let's try again.
+3 - Take plot 2 and add color = Diet within the aes() of ggplot(). There's some more information here, although it would be better to have some summary statistics as well. What do you think would be helpful?
+4 - Take plot 3 and add geom_smooth() with attributes lwd set to 2 and se set to FALSE. Inside geom_line(), set alpha of to 0.3.
+
+```R
+# ChickWeight is available in your workspace
+# 1 - Check out the head of ChickWeight
+head(ChickWeight)
+
+# 2 - Basic line plot
+ggplot(ChickWeight, aes(x = Time, y = weight)) +
+  geom_line(aes(group = Chick))
+
+# 3 - Take plot 2, map Diet onto col.
+# ChickWeight is available in your workspace
+# 1 - Check out the head of ChickWeight
+head(ChickWeight)
+
+# 2 - Basic line plot
+ggplot(ChickWeight, aes(x = Time, y = weight,col=Diet)) +
+  geom_line(aes(group = Chick))
+
+
+
+# 4 - Take plot 3, add geom_smooth()
+ggplot(ChickWeight, aes(x = Time, y = weight,col=Diet)) +
+  geom_line(aes(group = Chick),alpha=0.3)+
+  geom_smooth(lwd = 2, se = F,)
+```
+ Titanic
+
+You've watched the movie Titanic by James Cameron (1997) again and after a good portion of sobbing you decide to investigate whether you'd have a chance of surviving this disaster.
+
+To start your investigation, you decide to do some exploratory visualization with ggplot(). You have information on who survived the sinking given their age, sex and passenger class.
+Instructions
+100 XP
+
+1 - Have a look at the str() of the titanic dataset, which has been loaded into your workspace. Looks like the data is pretty tidy!
+2 - Plot the distribution of sexes within the classes of the ship.
+    Use ggplot() with the data layer set to titanic.
+    Map Pclass onto the x axis, Sex onto fill and draw a dodged bar plot using geom_bar(), i.e. set the geom position to "dodge".
+3 - These bar plots won't help you estimate your chances of survival. Copy the previous bar plot, but this time add a facet_grid() layer: . ~ Survived.
+4 - We've defined a position object for you.
+5 - Include Age, the final variable.
+    Take plot 3 and add a mapping of Age onto the y aesthetic.
+    Change geom_bar() to geom_point() and set its attributes size = 3, alpha = 0.5 and position = posn.jd.
+    Make sure that Sex is mapped onto color instead of fill to correctly color the scatter plots. (This was discussed in detail here and here).
+
+```R
+# titanic is avaliable in your workspace
+# 1 - Check the structure of titanic
+str(titanic)
+
+# 2 - Use ggplot() for the first instruction
+ggplot(titanic, aes(x = Pclass, fill = Sex))+
+  geom_bar(position ="dodge")
+
+# 3 - Plot 2, add facet_grid() layer
+ggplot(titanic, aes(x = Pclass, fill = Sex))+
+  geom_bar(position ="dodge")+
+  facet_grid(.~Survived)
+
+# 4 - Define an object for position jitterdodge, to use below
+posn.jd <- position_jitterdodge(0.5, 0, 0.6)
+
+# 5 - Plot 3, but use the position object from instruction 4
+ggplot(titanic, aes(x = Pclass,y=Age,color = Sex))+
+geom_point(alpha = 0.5, size = 3, position=posn.jd)+
+  facet_grid(.~Survived)
+```
