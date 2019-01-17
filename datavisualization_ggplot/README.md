@@ -1882,4 +1882,182 @@ In this exercise we'll take a look at a more subtle example of defining and usin
       scale_color_gradientn(colors = brewer.pal(9, "YlOrRd"))
     ```
 
-    
+    # Quantiles
+
+    The previous example used the `Vocab` dataset and applied linear models describing `vocabulary` by `education` for different `years`. Here we'll continue with that example by using [`stat_quantile()`](http://www.rdocumentation.org/packages/ggplot2/functions/geom_quantile) to apply a quantile regression (method `rq`).
+
+    By default, the 1st, 2nd (i.e. median), and 3rd quartiles are modeled as a response to the predictor variable, in this case `education`. Specific quantiles can be specified with the `quantiles` argument.
+
+    If you want to specify many quantile *and* color according to year, then things get too busy. We'll explore ways of dealing with this in the next chapter.
+
+    ##### Instructions
+
+    100 XP
+
+    The code from the previous exercise, with the linear model and a suitable color palette, is already shown. 
+
+    - Update the plotting code.
+      - Change the stat function from [`stat_smooth()`](http://www.rdocumentation.org/packages/ggplot2/functions/geom_smooth) to [`stat_quantile()`](http://www.rdocumentation.org/packages/ggplot2/functions/geom_quantile). 
+      - Get rid of all the arguments except `alpha` and `size`.
+    - The resulting plot will be a mess, because there are three quartiles drawn by default. 
+      - Copy the code for the previous instruction.
+      - Set the `quantiles` argument to `0.5` so that only the median is shown.
+
+# Sum
+
+Another useful stat function is [`stat_sum()`](http://www.rdocumentation.org/packages/ggplot2/functions/geom_count). This function calculates the total number of overlapping observations and is another good alternative to overplotting.
+
+##### Instructions
+
+100 XP
+
+`ggplot2` is already loaded. A plot showing jittered points is already provided and stored as `p`. 
+
+- Add [`stat_sum()`](http://www.rdocumentation.org/packages/ggplot2/functions/geom_count) to this plotting object `p`. This maps the overall `count` of each dot onto `size`. You don't have to set any arguments; the aesthetics will be inherited from the base plot!
+
+- Add the `size` scale with the generic [`scale_size()`](http://www.rdocumentation.org/packages/ggplot2/functions/scale_size) function. Use `range` to set the minimum and maximum dot sizes as `c(1,10)`.
+
+  
+
+```R
+# Plot 1: Jittering only
+p <- ggplot(Vocab, aes(x = education, y = vocabulary)) +
+  geom_jitter(alpha = 0.2)
+
+# Plot 2: Add stat_sum
+p +
+  stat_sum() # sum statistic
+
+# Plot 3: Set size range
+p +
+  stat_sum() + # sum statistic
+  scale_size(range = c(1, 10)) # set size scale
+
+```
+
+# Preparations
+
+Here we'll look at [`stat_summary()`](http://www.rdocumentation.org/packages/ggplot2/functions/stat_summary) in action. We'll build up various plots one-by-one.
+
+In this exercise we'll consider the preparations. That means we'll  make sure the data is in the right format and that all the positions  that we might use in our plots are defined. Lastly, we'll set the base  layer for our plot. `ggplot2` is already loaded, so you can get started straight away!
+
+##### Instructions
+
+100 XP
+
+- Explore the structure of the `mtcars` dataset by executing `str(mtcars)`.
+
+- In `mtcars`, `cyl` and `am` are classified as continuous, but they are actually categorical. Previously we just used [`factor()`](http://www.rdocumentation.org/packages/base/functions/factor), but here we'll modify the actual dataset. Change `cyl` and `am` to be categorical in the `mtcars` data frame using `as.factor`.
+
+- Next we'll set three position objects with convenient names. This  allows us to use the exact positions on multiple layers. Create:
+
+- `posn.d`, using [`position_dodge()`](http://www.rdocumentation.org/packages/ggplot2/functions/position_dodge) with a `width` of `0.1`,
+
+- `posn.jd`, using [`position_jitterdodge()`](http://www.rdocumentation.org/packages/ggplot2/functions/position_jitterdodge) with a `jitter.width` of `0.1` and a `dodge.width` of `0.2`
+
+- `posn.j`, using [`position_jitter()`](http://www.rdocumentation.org/packages/ggplot2/functions/position_jitter) with a width of `0.2`.
+
+- Finally, we'll make our base layers and store it in the object `wt.cyl.am`. Make the base call for ggplot mapping `cyl` to the `x`, `wt` to `y`, `am` to both `col` *and* `fill`. Also set `group = am` inside [`aes()`](http://www.rdocumentation.org/packages/ggplot2/functions/aes). The reason for these redundancies will become clear later on.
+
+  ```R
+  # Display structure of mtcars
+  str(mtcars)
+  
+  # Convert cyl and am to factors
+  mtcars$cyl <- as.factor(mtcars$cyl)
+  mtcars$am <- as.factor(mtcars$am)
+  
+  # Define positions
+  posn.d <- position_dodge(0.1)
+  posn.jd <- position_jitterdodge(jitter.width = 0.1, dodge.width = 0.2)
+  posn.j <- position_jitter(0.2)
+  
+  # Base layers
+  wt.cyl.am <- ggplot(mtcars, aes(x = cyl,
+                                  y = wt,
+                                  col = am,
+                                  fill = am,
+                                  group = am))
+  ```
+
+  # Plotting variations
+
+  Now that the preparation work is done, let's have a look at at [`stat_summary()`](http://www.rdocumentation.org/packages/ggplot2/functions/stat_summary).
+
+  `ggplot2` is already loaded, as is `wt.cyl.am`, which is defined as
+
+  ```
+  wt.cyl.am <- ggplot(mtcars, aes(x = cyl,  y = wt, col = am, fill = am, group = am))
+  ```
+
+  Also all the position objects of the previous exercise, `posn.d`, `posn.jd` and `posn.j`, are available. For starters, Plot 1 is already coded for you.
+
+  ##### Instructions
+
+  100 XP
+
+  - Plot 2: Add a [`stat_summary()`](http://www.rdocumentation.org/packages/ggplot2/functions/stat_summary) layer to `wt.cyl.am` and calculate the mean and standard deviation as we did in the video: set `fun.data` to `mean_sdl` and specify `fun.args` to be  `list(mult = 1)`. Set the `position` argument to `posn.d`.
+  - Plot 3: Repeat the previous plot, but use the 95% confidence interval instead of the standard deviation. You can use `mean_cl_normal` instead of `mean_sdl` this time. There's no need to specify `fun.args` in this case. Again, set `position` to `posn.d`.
+  - The above plots were simple because they implicitly used a default geom, which is `geom_pointrange()`. For Plot 4, fill in the blanks to calculate the mean and standard deviation separately with two [`stat_summary()`](http://www.rdocumentation.org/packages/ggplot2/functions/stat_summary) functions:
+  - For the mean, use `geom = "point"` and set `fun.y = mean`. This time you should use `fun.y` because the point geom uses the `y` aesthetic behind the scenes.
+  - Add error bars with another [`stat_summary()`](http://www.rdocumentation.org/packages/ggplot2/functions/stat_summary) function. Set `geom = "errorbar"` to get the real "T" tips. Set `fun.data = mean_sdl`.
+
+```R
+# wt.cyl.am, posn.d, posn.jd and posn.j are available
+
+# Plot 1: Jittered, dodged scatter plot with transparent points
+wt.cyl.am +
+  geom_point(position = posn.jd, alpha = 0.6)
+
+# Plot 2: Mean and SD - the easy way
+wt.cyl.am +
+  geom_point(position = posn.d, alpha = 0.6)+
+  stat_summary(fun.data = mean_sdl,fun.args= list(mult = 1),
+  position = posn.d)
+
+# Plot 3: Mean and 95% CI - the easy way
+wt.cyl.am+
+stat_summary(fun.data= mean_cl_normal,position = posn.d)
+
+
+# Plot 4: Mean and SD - with T-tipped error bars - fill in ___
+wt.cyl.am +
+  stat_summary(geom = "point", fun.y = mean,
+               position = posn.d) +
+  stat_summary(geom = "errorbar", fun.data = mean_sdl,
+               position = posn.d, fun.args = list(mult = 1), width = 0.1)
+```
+
+In the video we saw that the only difference between `ggplot2::mean_sdl()` and `Hmisc::smean.sdl()` is the naming convention. In order to use the results of a function directly in `ggplot2` we need to ensure that the names of the variables match the aesthetics needed for our respective geoms.
+
+Here we'll create two new functions in order to create the plot shown  in the viewer. One function will measure the full range of the dataset  and the other will measure the interquartile range.
+
+A play vector, `xx`, has been created for you. Execute
+
+```
+mean_sdl(xx, mult = 1)
+```
+
+in the R Console and consider the format of the output. You'll have to produce functions which return similar outputs.
+
+##### Instructions
+
+100 XP
+
+- First, change the arguments `ymin` and `ymax` inside the `data.frame()` call of `gg_range()`.
+
+- `ymin` should be the minimum of `x`
+
+- `ymax` should be the maximum of `x`
+
+  Use `min()` and `max()`. Watch out, naming is important here. `gg_range(xx)` should now generate the required output.
+
+- Next, change the arguments `y`, `ymin` and `ymax` inside the `data.frame()` call of `med_IQR()`.
+
+- `y` should be the median of `x`
+
+- `ymin` should be the first quartile
+
+- `ymax` should be the 3rd quartile.
+
+  You should use `median()` and `quantile()`. For example, `quantile()` can be used as follows to give the first quartile: `quantile(x)[2]`. `med_IQR(xx)` should now generate the required output.
