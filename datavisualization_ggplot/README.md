@@ -2061,3 +2061,338 @@ in the R Console and consider the format of the output. You'll have to produce f
 - `ymax` should be the 3rd quartile.
 
   You should use `median()` and `quantile()`. For example, `quantile()` can be used as follows to give the first quartile: `quantile(x)[2]`. `med_IQR(xx)` should now generate the required output.
+
+# Custom Functions
+
+In the video we saw that the only difference between `ggplot2::mean_sdl()` and `Hmisc::smean.sdl()` is the naming convention. In order to use the results of a function directly in `ggplot2` we need to ensure that the names of the variables match the aesthetics needed for our respective geoms.
+
+Here we'll create two new functions in order to create the plot shown  in the viewer. One function will measure the full range of the dataset  and the other will measure the interquartile range.
+
+A play vector, `xx`, has been created for you. Execute
+
+```
+mean_sdl(xx, mult = 1)
+```
+
+in the R Console and consider the format of the output. You'll have to produce functions which return similar outputs.
+
+##### Instructions
+
+100 XP
+
+- First, change the arguments `ymin` and `ymax` inside the `data.frame()` call of `gg_range()`.
+
+- `ymin` should be the minimum of `x`
+
+- `ymax` should be the maximum of `x`
+
+  Use `min()` and `max()`. Watch out, naming is important here. `gg_range(xx)` should now generate the required output.
+
+- Next, change the arguments `y`, `ymin` and `ymax` inside the `data.frame()` call of `med_IQR()`.
+
+- `y` should be the median of `x`
+
+- `ymin` should be the first quartile
+
+- `ymax` should be the 3rd quartile.
+
+  You should use `median()` and `quantile()`. For example, `quantile()` can be used as follows to give the first quartile: `quantile(x)[2]`. `med_IQR(xx)` should now generate the required output.
+
+  ```R
+  # Play vector xx is available
+  
+  # Function to save range for use in ggplot
+  gg_range <- function(x) {
+    # Change x below to return the instructed values
+    data.frame(ymin = min(x), # Min
+               ymax = max(x)) # Max
+  }
+  
+  gg_range(xx)
+  # Required output
+  #   ymin ymax
+  # 1    1  100
+  
+  # Function to Custom function:
+  med_IQR <- function(x) {
+    # Change x below to return the instructed values
+    data.frame(y =  median(x), # Median
+               ymin = quantile(x)[2], # 1st quartile
+               ymax = quantile(x)[4])  # 3rd quartile
+  }
+  
+  med_IQR(xx)
+  # Required output
+  #        y  ymin  ymax
+  # 25% 50.5 25.75 75.25
+  ```
+
+  # Custom Functions (2)
+
+  In the last exercise we created functions that will allow us to plot the so-called *five-number summary* (the minimum, 1st quartile, median, 3rd quartile, and the maximum). Here, we'll implement that into a unique plot type.
+
+  All the functions and objects from the previous exercise are available including the updated `mtcars` data frame, the position object `posn.d`, the base layers `wt.cyl.am` and the functions `med_IQR()` and `gg_range()`.
+
+  The plot you'll end up with at the end of this exercise is shown on the right. When using `stat_summary()` recall that the `fun.data` argument requires a properly labelled 3-element long vector, which we saw in the previous exercises. The `fun.y` argument requires only a 1-element long vector.
+
+  ##### Instructions
+
+  0 XP
+
+  Complete the given [`stat_summary()`](http://www.rdocumentation.org/packages/ggplot2/functions/stat_summary) functions, don't change the predefined arguments:
+
+  - The first [`stat_summary()`](http://www.rdocumentation.org/packages/ggplot2/functions/stat_summary) layer should have `geom` set to `"linerange"`. `fun.data` argument should be set to `med_IQR`, the function you used in the previous exercise.
+
+  - The second [`stat_summary()`](http://www.rdocumentation.org/packages/ggplot2/functions/stat_summary) layer also uses the `"linerange"` geom. This time `fun.data` should be `gg_range`, the other function you created. Also set `alpha = 0.4`.
+
+  - For the last [`stat_summary()`](http://www.rdocumentation.org/packages/ggplot2/functions/stat_summary) layer, use `geom = "point"`. The points should have `col` `"black"` and `shape` `"X"`.
+
+    ```R
+    # The base ggplot command; you don't have to change this
+    wt.cyl.am <- ggplot(mtcars, aes(x = cyl,y = wt, col = am, fill = am, group = am))
+    
+    # Add three stat_summary calls to wt.cyl.am
+    wt.cyl.am +
+      stat_summary(geom = "linerange", fun.data = med_IQR,
+                   position = posn.d, size = 3) +
+      stat_summary(geom = "linerange", fun.data = gg_range,
+                   position = posn.d, size = 3,
+                   alpha = 0.4) +
+      stat_summary(geom = "point", fun.y = median,
+                   position = posn.d, size = 3,
+                   col = "black", shape = "X")
+    ```
+
+    # Zooming In
+
+    In  the video, you saw different ways of using the coordinates layer to  zoom in. In this exercise, we'll compare some of the techniques again.
+
+    As usual, you'll be working with the `mtcars` dataset, which is already cleaned up for you (`cyl` and `am` are categorical variables). Also `p`, a ggplot object you coded in the previous chapter, is already available. Execute `p` in the console to check it out.
+
+    ##### Instructions
+
+    100 XP
+
+    - Extend `p` with a [`scale_x_continuous()`](http://www.rdocumentation.org/packages/ggplot2/functions/scale_continuous) with `limits = c(3, 6)` and `expand = c(0, 0)`. What do you see?
+    - Try again, this time with [`coord_cartesian()`](http://www.rdocumentation.org/packages/ggplot2/functions/coord_cartesian): Set the `xlim` argument equal to `c(3, 6)`. Compare the two plots.
+
+```R
+# Basic ggplot() command, coded for you
+p <- ggplot(mtcars, aes(x = wt, y = hp, col = am)) + geom_point() + geom_smooth()
+
+# Add scale_x_continuous()
+p+
+scale_x_continuous(limits = c(3,6),expand = c(0,0))
+
+# Add coord_cartesian(): the proper way to zoom in
+p+
+coord_cartesian(xlim = c(3,6))
+
+```
+
+# Aspect Ratio
+
+We can set the aspect ratio of a plot with [`coord_fixed()`](http://www.rdocumentation.org/packages/ggplot2/functions/coord_fixed) or [`coord_equal()`](http://www.rdocumentation.org/packages/ggplot2/functions/coord_fixed). Both use `ratio = 1` as a default. A 1:1 aspect ratio is most appropriate when two continuous variables are on the same scale, as with the `iris` dataset.
+
+All variables are measured in centimeters, so it only makes sense  that one unit on the plot should be the same physical distance on each  axis. This gives a more truthful depiction of the relationship between  the two variables since the aspect ratio can change the angle of our  smoothing line. This would give an erroneous impression of the data.
+
+Of course the underlying linear models don't change, but our perception can be influenced by the angle drawn.
+
+##### Instructions
+
+100 XP
+
+- Complete the basic scatter plot function using the `iris` data frame to plot `Sepal.Width` onto the `y` aesthetic, `Sepal.Length` onto the `x` and `Species` onto `col`. You should understand all the other functions used in this plot call by now. This is saved in an object called `base.plot`.
+
+- Write `base.plot` on a new line to print it out. Examine it: the plot is drawn to the dimensions of the graphics device.
+
+- Add a [`coord_equal()`](http://www.rdocumentation.org/packages/ggplot2/functions/coord_fixed) layer to force a 1:1 aspect ratio.
+
+  ```R
+  # Complete basic scatter plot function
+  base.plot <- ggplot(iris, aes(x = Sepal.Length, y = Sepal.Width, col = Species)) +
+                 geom_jitter() +
+                 geom_smooth(method = "lm", se = FALSE)
+  
+  # Plot base.plot: default aspect ratio
+  base.plot
+  # Fix aspect ratio (1:1) of base.plot
+  base.plot+
+  coord_equal(1:1)
+  ```
+
+  # Pie Charts
+
+  The [`coord_polar()`](http://www.rdocumentation.org/packages/ggplot2/functions/coord_polar) function converts a planar x-y Cartesian plot to polar coordinates. This can be useful if you are producing pie charts. 
+
+  We can imagine two forms for pie charts - the typical filled circle, or a colored ring.
+
+  As an example, consider the stacked bar chart shown in the viewer.  Imagine that we just take the y axis on the left and bend it until it  loops back on itself, while expanding the right side as we go along.  We'd end up with a pie chart - it's simply a bar chart transformed onto a  polar coordinate system. 
+
+  Typical pie charts omit all of the non-data ink, which we'll learn  about in the next chapter. Pie charts are not really better than stacked  bar charts, but we'll come back to this point in the fourth chapter on  best practices.
+
+  The `mtcars` data frame is available, with `cyl` converted to a factor for you.
+
+  ##### Instructions
+
+  100 XP
+
+  - Create a basic stacked bar plot. Since we have univariate data and [`stat_bin()`](http://www.rdocumentation.org/packages/ggplot2/functions/geom_histogram) requires an `x` aesthetic, we'll have to use a dummy variable. Set `x` to `1` and map `cyl` onto `fill`. Assign the bar plot to `wide.bar`.
+  - Add a [`coord_polar()`](http://www.rdocumentation.org/packages/ggplot2/functions/coord_polar) layer to `wide.bar`. Set the argument `theta` to `"y"`. This specifies the axis which would be transformed to polar coordinates.
+  - Repeat the code for the stacked bar plot, but this time:
+    - Set the `width` argument inside the [`geom_bar()`](http://www.rdocumentation.org/packages/ggplot2/functions/geom_bar) function to `0.1` and
+    - Use `scale_x_continuous()` to set the `limits` argument to `c(0.5,1.5))`. These two steps will add empty space aroung the bar on the x axis.
+    - Assign this plot to `thin.bar`.
+  - Add a [`coord_polar()`](http://www.rdocumentation.org/packages/ggplot2/functions/coord_polar) layer to `thin.bar`, as you did before. There's a ring structure instead of a pie!
+
+```R
+# Create a stacked bar plot: wide.bar
+wide.bar <- ggplot(mtcars, aes(x = 1, fill = cyl)) +
+              geom_bar()
+
+# Convert wide.bar to pie chart
+wide.bar +
+  coord_polar(theta = "y")
+
+# Create stacked bar plot: thin.bar
+thin.bar <- ggplot(mtcars, aes(x = 1, fill = cyl)) +
+              geom_bar(width = .1) +
+              scale_x_continuous(limits = c(0.5,1.5))
+
+# Convert thin.bar to "ring" type pie chart
+thin.bar +
+  coord_polar(theta = "y")
+```
+
+# Facets: the basics
+
+The most straightforward way of using facets is [`facet_grid()`](http://www.rdocumentation.org/packages/ggplot2/functions/facet_grid). Here we just need to specify the categorical variable to use on rows and columns using standard R formula notation (`rows ~ columns`).
+
+Notice that we can also take advantage of ordinal variables by  positioning them in the correct order as columns or rows, as is the case  with the number of cylinders. Get some hands-on practice in this  exercise; `ggplot2` is already loaded for you and `mtcars` is available. The variables `cyl` and `am` are factors. However, this is not necessary for facets; ggplot2 will coerce variables to factors in this case.
+
+##### Instructions
+
+100 XP
+
+Starting from the basic scatter plot, use [`facet_grid()`](http://www.rdocumentation.org/packages/ggplot2/functions/facet_grid) and the formula notation to facet the plot in three different ways:
+
+- 1 - Rows by `am`.
+- 2 - Columns by `cyl`.
+- 3 - Rows and columns by `am` and `cyl`.
+
+Remember, when faceting in only one direction us `.` to specify *nothing* for the unused direction.
+
+```R
+# Code to create the cyl_am col and myCol vector
+mtcars$cyl_am <- paste(mtcars$cyl, mtcars$am, sep = "_")
+myCol <- rbind(brewer.pal(9, "Blues")[c(3,6,8)],
+               brewer.pal(9, "Reds")[c(3,6,8)])
+
+# Map cyl_am onto col
+ggplot(mtcars, aes(x = wt, y = mpg, col = cyl_am)) +
+  geom_point() +
+  # Add a manual colour scale
+  scale_color_manual(values = myCol)
+  
+# Grid facet on gear vs. vs
+ggplot(mtcars, aes(x = wt, y = mpg, col = cyl_am)) +
+  geom_point() +
+  scale_color_manual(values = myCol) +
+  facet_grid(gear ~ vs)
+
+# Also map disp to size
+ggplot(mtcars, aes(x = wt, y = mpg, col = cyl_am, size = disp)) +
+  geom_point() +
+  scale_color_manual(values = myCol) +
+  facet_grid(gear ~ vs)
+```
+
+# Dropping levels
+
+When  you have a categorical variable with many levels which are not all  present in each sub-group of another variable, it may be desirable to  drop the unused levels. As an example let's return to the mammalian  sleep dataset, `mamsleep`. It is available in your workspace.
+
+The variables of interest here are `name`, which contains the full popular name of each animal, and `vore`, the eating behavior. Each animal can only be classified under one eating habit, so if we facet according to `vore`, we don't need to repeat the full list in each sub-plot.
+
+##### Instructions
+
+100 XP
+
+- A basic plot, object `p`, is defined for you. `time` is mapped onto the `x`, `name` onto the `y` and `sleep` onto the `col` aesthetics.
+- To see the plot execute `p`. 
+- Facet `p` by rows according to `vore`. If you look at the resulting plot, you'll notice that there are a lot of lines where no data is available.
+- Extend `facet_grid` with `scale = "free_y"` and `space = "free_y"` to leave out rows for which there is no data.
+
+```R
+# Basic scatter plot
+p <- ggplot(mamsleep, aes(x = time, y = name, col = sleep)) +
+  geom_point()
+  
+# Execute to display plot
+p
+
+# Facet rows accoding to vore
+p +
+facet_grid(vore ~.)
+
+# Specify scale and space arguments to free up rows
+p +
+  facet_grid(vore ~ ., scale="free_y", space = "free_y")
+
+```
+
+# Rectangles
+
+To understand all the arguments for the themes, you'll modify an existing plot over the next series of exercises.
+
+Here you'll focus on the rectangles of the plotting object `z` that has already been created for you. If you type `z` in the console, you can check it out. The goal is to turn `z` into the plot in the viewer. Do this by following the instructions step by step.
+
+##### Instructions
+
+100 XP
+
+- Plot 1: In the [`theme()`](http://www.rdocumentation.org/packages/ggplot2/functions/theme) function added to `z`, set the `plot.background` argument to `element_rect(fill = myPink)`. `myPink` is already available in the workspace for you.
+- Plot 2: Expand your code for Plot 1 by adding a border to the `plot.background`. Do this by adding 2 arguments to the [`element_rect()`](http://www.rdocumentation.org/packages/ggplot2/functions/element_rect) function in `theme()`: `color` and `size`. Set them to `"black"` and `3`, respectively.
+- Plot 3: we don't want the plot panels and legend to appear as they are in Plot 2. A short cut is to remove *all* rectangles, as defined in the theme object `no_panels`, and then draw the one we way in the way we want. Copy your `theme()` layer from Plot 2 and add it to `no_panels`.
+
+```R
+# Starting point
+z
+
+# Plot 1: Change the plot background fill to myPink
+z + 
+  theme(plot.background = element_rect(fill = myPink))
+
+# Plot 2: Adjust the border to be a black line of size 3
+z + 
+  theme(plot.background = element_rect(fill = myPink, color = "black", size = 3)) # expanded from plot 1
+
+# Theme to remove all rectangles
+no_panels <- theme(rect = element_blank())
+
+# Plot 3: Combine custom themes
+z +
+  no_panels +
+  theme(plot.background = element_rect(fill = myPink, color = "black", size = 3))  # from plot 2Lines
+```
+
+
+
+# Lines
+
+To change the appearance of lines use the [`element_line()`](http://www.rdocumentation.org/packages/ggplot2/functions/element_line) function. 
+
+The plot you created in the last exercise, with the fancy pink background, is available as the plotting object `z`. Your goal is to produce the plot in the viewer - no grid lines, but red axes and tick marks.
+
+For each of the arguments that specify lines, use [`element_line()`](http://www.rdocumentation.org/packages/ggplot2/functions/element_line) to modify attributes. e.g. `element_line(color = "red")`.
+
+Remember, to remove a non-data element, use `element_blank()`.
+
+##### Instructions
+
+100 XP
+
+Starting with object `z`, add a [`theme()`](http://www.rdocumentation.org/packages/ggplot2/functions/theme) function to:
+
+- remove the grid lines using the `panel.grid` argument.
+- add red axis lines using the `axis.line` argument.
+- change the tick marks to red using the `axis.ticks` argument, similar to how you specified `axis.line`.
