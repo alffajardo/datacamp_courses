@@ -2375,9 +2375,9 @@ z +
   theme(plot.background = element_rect(fill = myPink, color = "black", size = 3))  # from plot 2Lines
 ```
 
-
-
 # Lines
+
+
 
 To change the appearance of lines use the [`element_line()`](http://www.rdocumentation.org/packages/ggplot2/functions/element_line) function. 
 
@@ -2396,3 +2396,233 @@ Starting with object `z`, add a [`theme()`](http://www.rdocumentation.org/packag
 - remove the grid lines using the `panel.grid` argument.
 - add red axis lines using the `axis.line` argument.
 - change the tick marks to red using the `axis.ticks` argument, similar to how you specified `axis.line`.
+
+```R
+ Starting point
+z
+
+# Plot 1: Change the plot background fill to myPink
+z + 
+  theme(plot.background = element_rect(fill = myPink))
+
+# Plot 2: Adjust the border to be a black line of size 3
+z + 
+  theme(plot.background = element_rect(fill = myPink, color = "black", size = 3)) # expanded from plot 1
+
+# Theme to remove all rectangles
+no_panels <- theme(rect = element_blank())
+
+# Plot 3: Combine custom themes
+z +
+  no_panels +
+  theme(plot.background = element_rect(fill = myPink, color = "black", size = 3))  # from plot 2Lines
+```
+
+# Text
+
+Next we can make the text on your plot prettier and easier to spot. You can do this through the [`element_text()`](http://www.rdocumentation.org/packages/ggplot2/functions/element_text) function and by passing the appropriate arguments inside the [`theme()`](http://www.rdocumentation.org/packages/ggplot2/functions/theme) function.
+
+As before, the plot you've created in the previous exercise is available as `z`. The plot you should end up with after successfully completing this exercises is shown in the viewer.
+
+##### Instructions
+
+0 XP
+
+Starting from `z`, add a [`theme()`](http://www.rdocumentation.org/packages/ggplot2/functions/theme) function to:
+
+- Change the appearance of the strip text, that is the text in the facet strips. Specify `strip.text` with [`element_text()`](http://www.rdocumentation.org/packages/ggplot2/functions/element_text). The `size` of the text should be `16`, the `color` should be `myRed`, a color that is predefined for you.
+- Change the axis titles. Specify both axes with the `axis.title` argument and use [`element_text()`](http://www.rdocumentation.org/packages/ggplot2/functions/element_text) to set the parameters: `color = myRed`, `hjust = 0` (to put the text in the bottom left corner) and `face = "italic"`.
+- Make the axis text black using the `axis.text` argument to do so.
+
+
+
+```
+# Original plot, color provided
+z
+myRed
+
+# Extend z with theme() function and 3 args
+z +
+  theme(strip.text = element_text(size = 16, color = myRed),
+        axis.title = element_text(color = myRed, hjust = 0, face = "italic"),
+        axis.text = element_text(color = "black"))
+```
+
+# Legends
+
+The themes layer also allows you to specify the appearance and location of legends.
+
+The plot you've coded up to now is available as `z`. It's also displayed in the viewer. Solve the instructions and compare the resulting plots with the plot you started with.
+
+##### Instructions
+
+100 XP
+
+- Add a [`theme()`](http://www.rdocumentation.org/packages/ggplot2/functions/theme) function to `z` to change the legend's location. Do this by specifying the `legend.position` argument to be `c(0.85, 0.85)`. This will make the legend appear in the top right of the plot, inside the third facet.
+- Instead of a vertical list of legend entries, you might want to have the different entries next to each other. Starting from `z`, add a [`theme()`](http://www.rdocumentation.org/packages/ggplot2/functions/theme) function in which you specify `legend.direction` to be `"horizontal"`.
+- You can also change the locations of legends by name: set `legend.position` to `"bottom"`.
+- Finally, you can remove the legend entirely, by setting `legend.position` to `"none"`.
+
+```R
+# Move legend by position
+z +
+  theme(legend.position = c(0.85,0.85))
+
+# Change direction
+z +
+  theme(legend.direction="horizontal")
+  
+# Change location by name
+z +
+  theme(legend.position= "bottom")
+
+# Remove legend entirely
+z +
+  theme(legend.position= "none")
+```
+
+# Positions
+
+The  different rectangles of your plot have spacing between them. There's  spacing between the facets, between the axis labels and the plot  rectangle, between the plot rectangle and the entire panel background,  etc. Let's experiment!
+
+The last plot you created in the previous exercise, without a legend, is available as `z`.
+
+##### Instructions
+
+100 XP
+
+- Suppose you want to have more spacing between the different facets. You can control this by specifying `panel.spacing.x` inside a [`theme()`](http://www.rdocumentation.org/packages/ggplot2/functions/theme) function you add to `z`. For the argument value, you should pass a `unit` object. To achieve this, load the `grid` package with [`library()`](http://www.rdocumentation.org/packages/base/functions/library). Next, set `panel.spacing.x` to `unit(2, "cm")`.
+- Copy, adapt and paste the plot command for the previous instruction: to adjust the plot margin, set `plot.margin` to `unit(c(1,2,1,1), "cm")` (spacing for top, right, bottom, and left margins).
+
+```R
+# Increase spacing between facets
+z+
+theme(panel.spacing.x = unit(2,"cm"))
+library(grid)
+
+# Adjust the plot margin
+z+
+theme(panel.spacing.x = unit(2,"cm"),
+      plot.margin = unit(c(1,2,1,1),"cm"))
+
+```
+
+# Updating Themes
+
+Building  your themes every time from scratch can become a pain and unnecessarily  bloat your scripts. In the following exercises, we'll practice  different ways of managing, updating and saving themes.
+
+A plot object `z2` is already created for you on the right. It shows `mpg` against `wt` for the `mtcars` dataset, faceted according to `cyl`. Also the colors `myPink` and `myRed`  are available. In the previous exercises you've already customized the  rectangles, lines and text on the plot. This theme layer is now  separately stored as `theme_pink`, as shown in the sample code.
+
+[`theme_update()`](http://www.rdocumentation.org/packages/ggplot2/functions/theme_update) updates the default theme used by `ggplot2`. The arguments for [`theme_update()`](http://www.rdocumentation.org/packages/ggplot2/functions/theme_update) are the same as for [`theme()`](http://www.rdocumentation.org/packages/ggplot2/functions/theme). When you call [`theme_update()`](http://www.rdocumentation.org/packages/ggplot2/functions/theme_update) and assign it to an object (e.g. called `old`), that object stores the *current* default theme, and the arguments *update* the default theme. If you want to restore the previous default theme, you can get it back by using [`theme_update()`](http://www.rdocumentation.org/packages/ggplot2/functions/theme_update) again. Let's see how:
+
+##### Instructions
+
+100 XP
+
+- 1 - "Apply" `theme_pink` to `z2` to carry out all customizations.
+- 2 - Instead of applying `theme_pink`, use  [`theme_update()`](http://www.rdocumentation.org/packages/ggplot2/functions/theme_update).  This function returns an object that contains the previous theme  settings, so that you can restore it later. Assign the output of [`theme_update()`](http://www.rdocumentation.org/packages/ggplot2/functions/theme_update) to an object called `old`.
+- 3 - Plot `z2` again, after the [`theme_update()`](http://www.rdocumentation.org/packages/ggplot2/functions/theme_update) call. The resulting plot has the same appearance as the previous one - but now you don't need to call `theme()` explictly.
+- 4 - Restore the old theme using `theme_set(old)` and plot `z2` again. It's back to the original default theme.
+
+```R
+# Original plot
+z2
+
+# Theme layer saved as an object, theme_pink
+theme_pink <- theme(panel.background = element_blank(),
+                    legend.key = element_blank(),
+                    legend.background = element_blank(),
+                    strip.background = element_blank(),
+                    plot.background = element_rect(fill = myPink, color = "black", size = 3),
+                    panel.grid = element_blank(),
+                    axis.line = element_line(color = "red"),
+                    axis.ticks = element_line(color = "red"),
+                    strip.text = element_text(size = 16, color = myRed),
+                    axis.title.y = element_text(color = myRed, hjust = 0, face = "italic"),
+                    axis.title.x = element_text(color = myRed, hjust = 0, face = "italic"),
+                    axis.text = element_text(color = "black"),
+                    legend.position = "none")
+  
+# 1 - Apply theme_pink to z2
+z2 + 
+  theme_pink
+
+# 2 - Update the default theme, and at the same time
+# assign the old theme to the object old.
+old <- theme_update(panel.background = element_blank(),
+             legend.key = element_blank(),
+             legend.background = element_blank(),
+             strip.background = element_blank(),
+             plot.background = element_rect(fill = myPink, color = "black", size = 3),
+             panel.grid = element_blank(),
+             axis.line = element_line(color = "red"),
+             axis.ticks = element_line(color = "red"),
+             strip.text = element_text(size = 16, color = myRed),
+             axis.title.y = element_text(color = myRed, hjust = 0, face = "italic"),
+             axis.title.x = element_text(color = myRed, hjust = 0, face = "italic"),
+             axis.text = element_text(color = "black"),
+             legend.position = "none")
+
+# 3 - Display the plot z2 - new default theme used
+z2
+
+# 4 - Restore the old default theme
+theme_set(old)
+
+# Display the plot z2 - old theme restored
+z2
+```
+
+# Exploring ggthemes
+
+There are many themes available by default in `ggplot2`: [`theme_bw()`](http://www.rdocumentation.org/packages/ggplot2/functions/ggtheme), [`theme_classic()`](http://www.rdocumentation.org/packages/ggplot2/functions/ggtheme), [`theme_gray()`](http://www.rdocumentation.org/packages/ggplot2/functions/ggtheme), etc. In the previous exercise, you saw that you can apply these themes to all following plots, with [`theme_set()`](http://www.rdocumentation.org/packages/ggplot2/functions/theme_set):
+
+```
+theme_set(theme_bw())
+```
+
+But you can also apply them on an individual plot, with:
+
+```
+... + theme_bw()
+```
+
+You can also extend these themes with your own modifications. In this  exercise, you'll experiment with this and use some preset templates  available from the `ggthemes` package. The workspace already contains the same basic plot from before under the name `z2`.
+
+##### Instructions
+
+100 XP
+
+- Create a custom theme, assigning it to `custom_theme`.
+- Call [`theme_tufte()`](http://www.rdocumentation.org/packages/ggthemes/functions/theme_tufte) with no arguments.
+- Add a call to [`theme()`](http://www.rdocumentation.org/packages/ggplot2/functions/theme) as follows.
+- Set `legend.position` to `c(0.9, 0.9)`.
+- Set `legend.title` to an `"italic"` text of size `12`. Use `element_text(face = ___, size = ___)`.
+- Set `axis.title` to a `"bold"` text of size `14`. Use `element_text(face = ___, size = ___)`.
+- Plot `z2` with the customized theme. (You don't need parentheses.)
+- Make `custom_theme` the default by calling [`theme_set()`](https://www.rdocumentation.org/packages/ggplot2/topics/theme_get).
+- Plot `z2` again.
+
+```R
+# Original plot
+z2
+
+# Load ggthemes
+library(ggthemes)
+
+# Apply theme_tufte, plot additional modifications
+custom_theme <- theme_tufte() +
+  theme(legend.position = c(0.9, 0.9),
+        legend.title = element_text(face = "italic", size = 12),
+        axis.title = element_text(face = "bold", size = 14))
+
+# Draw the customized plot
+z2 + custom_theme
+ 
+# Use theme set to set custom theme as default
+theme_set(custom_theme)
+
+# Plot z2 again
+z2
+```
+
