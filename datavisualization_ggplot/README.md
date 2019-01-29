@@ -2887,4 +2887,108 @@ Adapt the code for the bar chart in the editor to turn it into a good looking pi
       stat_summary(fun.data = mean_sdl, fun.args = list(mult = 1), geom = "ribbon", alpha = 0.1, col = NA)
     ```
 
-  - 
+     Exploring Data
+
+    In  this chapter we're going to continuously build on our plotting  functions and understanding to produce a mosaic plot (aka Marimekko  plot). This is a visual representation of a contingency table, comparing  two categorical variables. Essentially, our question is which groups  are over or under represented in our dataset. To visualize this we'll  color groups according to their Pearson residuals from a chi-squared  test. At the end of it all we'll wrap up our script into a flexible  function so that we can look at other variables.
+
+    We'll familiarize ourselves with a small number of variables from the  2009 CHIS adult-response dataset (as opposed to children). We have  selected the following variables to explore:
+
+    - `RBMI`: BMI Category description
+    - `BMI_P`: BMI value
+    - `RACEHPR2`: race
+    - `SRSEX`: sex
+    - `SRAGE_P`: age
+    - `MARIT2`: Marital status
+    - `AB1`: General Health Condition
+    - `ASTCUR`: Current Asthma Status
+    - `AB51`: Type I or Type II Diabetes
+    - `POVLL`: Poverty level
+
+    We'll filter our dataset to plot a more reliable subset (we'll still retain over 95% of the data).
+
+    Before we get into mosaic plots it's worthwhile exploring the dataset using simple distribution plots - i.e. histograms.
+
+    `ggplot2` is already loaded and the dataset, named `adult`, is already available in the workspace.
+
+    ##### Instructions
+
+    100 XP
+
+    - Use the typical commands for exploring the structure of `adult` to get familiar with the variables: [`summary()`](http://www.rdocumentation.org/packages/base/functions/summary) and [`str()`](http://www.rdocumentation.org/packages/utils/functions/str).
+    - As a first exploration of the data, plot two histograms using `ggplot2` syntax: one for age (`SRAGE_P`) and one for BMI (`BMI_P`).  The goal is to explore the dataset and get familiar with the  distributions here. Feel free to explore different bin widths. We'll ask  some questions about these in the next exercises.
+    - Next plot a binned-distribution of age, filling each bar according to the BMI categorization. Inside [`geom_histogram()`](http://www.rdocumentation.org/packages/ggplot2/functions/geom_histogram), set `binwidth = 1`. You'll want to use [`fill = factor(RBMI)`](http://www.rdocumentation.org/packages/base/functions/factor) since `RBMI` is a categorical variable.
+
+    - 
+
+```R
+# Explore the dataset with summary and str
+str(adult)
+summary(adult)
+
+
+# Age histogram
+ggplot(adult ,aes(x = SRAGE_P))+
+geom_histogram()
+
+
+# BMI value histogram
+ggplot(adult,aes(x = BMI_P))+
+geom_histogram()
+
+
+# Age colored by BMI, binwidth = 1
+ggplot(data= adult,mapping = aes(x = SRAGE_P,fill = factor(RBMI)))+
+geom_histogram(binwidth = 1)
+```
+
+# Data Cleaning
+
+Now that we have an idea about our data, let's clean it up.
+
+##### Instructions
+
+100 XP
+
+- You should have noticed in the age distribution that there is an  unusual spike of individuals at 85, which seems like an artifact of data  collection and storage. Solve this by only keeping observations for  which `adult$SRAGE_P` is smaller than or equal to `84`.
+- There is a long positive tail on the BMIs that we'd like to remove. Only keep observations for which `adult$BMI_P` is larger than or equal to `16` and `adult$BMI_P` is strictly smaller than `52`.
+- We'll focus on the relationship between the BMI score (&  category), age and race. To make plotting easier later on, we'll change  the labels in the dataset. Define `adult$RACEHPR2` as a factor with labels `c("Latino", "Asian", "African American", "White")`. Do the same for `adult$RBMI`, using the labels `c("Under-weight", "Normal-weight", "Over-weight", "Obese")`.
+
+```R
+# Keep adults younger than or equal to 84
+adult <- adult[adult$SRAGE_P <= 84, ] 
+
+# Keep adults with BMI at least 16 and less than 52
+adult <- adult[adult$BMI_P >=  16 & adult$BMI_P < 52, ]
+
+# Relabel the race variable
+adult$RACEHPR2 <- factor(adult$RACEHPR2, labels = c("Latino", "Asian", "African American", "White"))
+
+# Relabel the BMI categories variable
+adult$RBMI <- factor(adult$RBMI, labels = c("Under-weight", "Normal-weight", "Over-weight", "Obese"))
+```
+
+  	Multiple Histograms
+
+When  we introduced histograms we focused on univariate data, which is  exactly what we've been doing here. However, when we want to explore  distributions further there is much more we can do. For example, there  are density plots, which you'll explore in the next course. For now,  we'll look deeper at frequency histograms and begin developing our  mosaic plots.
+
+The `adult` dataset, which is cleaned up by now, is available in the workspace for you.
+
+Two layers have been pre-defined for you: `BMI_fill` is a scale layer which we can add to a `ggplot()` command using `+`: `ggplot(...) + BMI_fill`. `fix_strips` is a `theme()` layer to make nice facet titles.
+
+##### Instructions
+
+100 XP
+
+- The histogram from the first exercise of age colored by BMI has been provided. The predefined `theme()`, `fix_strips` (see above), has been added to the histogram. Add `BMI_fill` to this plot using the `+` operator as well.
+
+- In addition, add the following elements to create a pretty & insightful plot:
+
+- Use [`facet_grid()`](http://www.rdocumentation.org/packages/ggplot2/functions/facet_grid) to facet the rows according to `RBMI` (Remember formula notation `ROWS ~ COL` and use `.` as a place-holder when not facetting in that direction).
+
+- Add the classic theme using [`theme_classic()`](http://www.rdocumentation.org/packages/ggplot2/functions/ggtheme).
+
+  ```
+  
+  ```
+
+  
