@@ -1581,10 +1581,10 @@ Instructions
 
 1 - Execute head(ChickWeight) to check the first few rows of this dataset. Looks like the data is pretty tidy!
 2 - Plot a line for each chick.
-    Use ggplot() and map Time to x and weight to y within the aes() function.
-    Add geom_line() at the end to draw the lines.
-    To draw one line per chick, add group = Chick to the aes() of geom_line().
-    Oops! That looks pretty chaotic and you can't really conclude anything from it. Let's try again.
+​    Use ggplot() and map Time to x and weight to y within the aes() function.
+​    Add geom_line() at the end to draw the lines.
+​    To draw one line per chick, add group = Chick to the aes() of geom_line().
+​    Oops! That looks pretty chaotic and you can't really conclude anything from it. Let's try again.
 3 - Take plot 2 and add color = Diet within the aes() of ggplot(). There's some more information here, although it would be better to have some summary statistics as well. What do you think would be helpful?
 4 - Take plot 3 and add geom_smooth() with attributes lwd set to 2 and se set to FALSE. Inside geom_line(), set alpha of to 0.3.
 
@@ -1623,14 +1623,14 @@ Instructions
 
 1 - Have a look at the str() of the titanic dataset, which has been loaded into your workspace. Looks like the data is pretty tidy!
 2 - Plot the distribution of sexes within the classes of the ship.
-    Use ggplot() with the data layer set to titanic.
-    Map Pclass onto the x axis, Sex onto fill and draw a dodged bar plot using geom_bar(), i.e. set the geom position to "dodge".
+​    Use ggplot() with the data layer set to titanic.
+​    Map Pclass onto the x axis, Sex onto fill and draw a dodged bar plot using geom_bar(), i.e. set the geom position to "dodge".
 3 - These bar plots won't help you estimate your chances of survival. Copy the previous bar plot, but this time add a facet_grid() layer: . ~ Survived.
 4 - We've defined a position object for you.
 5 - Include Age, the final variable.
-    Take plot 3 and add a mapping of Age onto the y aesthetic.
-    Change geom_bar() to geom_point() and set its attributes size = 3, alpha = 0.5 and position = posn.jd.
-    Make sure that Sex is mapped onto color instead of fill to correctly color the scatter plots. (This was discussed in detail here and here).
+​    Take plot 3 and add a mapping of Age onto the y aesthetic.
+​    Change geom_bar() to geom_point() and set its attributes size = 3, alpha = 0.5 and position = posn.jd.
+​    Make sure that Sex is mapped onto color instead of fill to correctly color the scatter plots. (This was discussed in detail here and here).
 
 ```R
 # titanic is avaliable in your workspace
@@ -1917,7 +1917,6 @@ Another useful stat function is [`stat_sum()`](http://www.rdocumentation.org/pac
 
 - Add the `size` scale with the generic [`scale_size()`](http://www.rdocumentation.org/packages/ggplot2/functions/scale_size) function. Use `range` to set the minimum and maximum dot sizes as `c(1,10)`.
 
-  
 
 ```R
 # Plot 1: Jittering only
@@ -2626,3 +2625,266 @@ theme_set(custom_theme)
 z2
 ```
 
+# Bar Plots (2)
+
+In the previous exercise we used the `mtcars` dataset to draw a dynamite plot about the weight of the cars per cylinder type.
+
+In this exercise we will add a distinction between transmission type, `am`, for the dynamite plots.
+
+##### Instructions
+
+100 XP
+
+- Update `m` so that we split the bars according to transmission type, `am`. Note that for bar plots, we want to change the `col` as well as the `fill`.
+- Plot 1 is already coded for you, but it is not optimal. Let's fix that in the following instructions.
+- Plot 2: copy the code for Plot 1 and set the position to `"dodge"` - this also doesn't work, because the default dodging is different for the different [`stat_summary()`](http://www.rdocumentation.org/packages/ggplot2/functions/stat_summary) functions.
+- Plot 3: copy the code for Plot 2 and set the position to the object `posn.d`, which defines a dodge position using `position_dodge(0.9)`.
+
+```
+# Base layers
+m <- ggplot(mtcars, aes(x = cyl,y = wt, col = am, fill = am))
+
+# Plot 1: Draw dynamite plot
+m +
+  stat_summary(fun.y = mean, geom = "bar") +
+  stat_summary(fun.data = mean_sdl, fun.args = list(mult = 1), geom = "errorbar", width = 0.1)
+
+# Plot 2: Set position dodge in m +
+  m+
+  stat_summary(fun.y = mean, geom = "bar", position = "dodge") +
+  stat_summary(fun.data = mean_sdl, fun.args = list(mult = 1), 
+               geom = "errorbar", width = 0.1, position = "dodge")
+
+
+# Set your dodge posn manually
+posn.d <- position_dodge(0.9)
+
+# Plot 3: Redraw dynamite plot
+m +
+  stat_summary(fun.y = mean, geom = "bar", position = posn.d) +
+  stat_summary(fun.data = mean_sdl, fun.args = list(mult = 1), geom = "errorbar", width = 0.1, position = posn.d)
+```
+
+# Bar Plots (3)
+
+If it *is* appropriate to use bar plots (see the video for a discussion!), then it would also be nice to give an impression of the number of values in each group.
+
+`stat_summary()` doesn't keep track of the count. [`stat_sum()`](http://www.rdocumentation.org/packages/ggplot2/functions/geom_count) does (that's the whole point), but it's difficult to access. In this case, the most straightforward thing to do is calculate exactly what we want to plot beforehand. For this exercise we've created a summary data frame called `mtcars.cyl` which contains the average (`wt.avg`), standard deviations (`sd`) and count (`n`) of car weights, according to cylinders, `cyl`. It also contains the proportion (`prop`) of each cylinder represented in the entire dataset. Use the console to familiarize yourself with the `mtcars.cyl` data frame.
+
+##### Instructions
+
+100 XP
+
+##### Instructions
+
+100 XP
+
+- Establish the base layers. Use the `mtcars.cyl` dataset and map `cyl` onto `x` and `wt.avg` onto `y`. Call the resulting `ggplot` object `m`.
+
+- Plot 1: Starting from `m`
+
+- Add a [`geom_bar()`](http://www.rdocumentation.org/packages/ggplot2/functions/geom_bar) layer
+
+- In this [`geom_bar()`](http://www.rdocumentation.org/packages/ggplot2/functions/geom_bar), set the attribute `stat` to `"identity"` and the attribute `fill` to `"skyblue"`.
+
+- Plot 2: `geom_col()` is a shortcut for `geom_bar(stat = "identity")`, for when your data already has counts.
+
+- Add a [`geom_col()`](http://www.rdocumentation.org/packages/ggplot2/functions/geom_col) layer. This time just specify the `fill` argument as above. The result should be the same, but here we don't have to specify the `stat` argument.
+
+- Plot 3: Starting from Plot 2,
+
+- Add the argument `width = mtcars.cyl$prop` inside the [`geom_col()`](http://www.rdocumentation.org/packages/ggplot2/functions/geom_bar)layer. `mtcars.cyl$prop` is a column that represents the proportion of each group.
+
+- Plot 4: Starting from Plot 3,
+
+- Add error bars to create a *dynamite* plot using [`geom_errorbar()`](http://www.rdocumentation.org/packages/ggplot2/functions/geom_linerange)
+
+- Inside [`aes()`](http://www.rdocumentation.org/packages/ggplot2/functions/aes) of this [`geom_errorbar()`](http://www.rdocumentation.org/packages/ggplot2/functions/geom_linerange) layer, specify: `ymin = wt.avg - sd` and `ymax = wt.avg + sd`.
+
+- Inside [`geom_errorbar()`](http://www.rdocumentation.org/packages/ggplot2/functions/geom_linerange), but outside its [`aes()`](http://www.rdocumentation.org/packages/ggplot2/functions/aes), set the `width = 0.1` to control the width of the error bars.
+
+  ```R
+  # Base layers
+  m <- ggplot(mtcars.cyl, aes(x =cyl, y = wt.avg))
+  
+  # Plot 1: Draw bar plot with geom_bar
+  m + geom_bar(stat ="identity", fill = "skyblue")
+  
+  # Plot 2: Draw bar plot with geom_col
+  m + geom_col(stat = "identity",)+
+  geom_col(fill="skyblue")
+  # Plot 3: geom_col with variable widths.
+  m + geom_col(width = mtcars.cyl$prop, fill = "skyblue")
+   
+  # Plot 4: Add error bars
+  m + 
+    geom_col(width = mtcars.cyl$prop, fill = "skyblue") +
+    geom_errorbar(aes(ymin = wt.avg - sd, ymax= wt.avg + sd), width = 0.1 )
+  ```
+
+# Pie Charts (1)
+
+In this example we're going to consider a typical use of pie charts - a categorical variable as the proportion of another categorical variable. For example, the proportion of each transmission type `am`, in each cylinder, `cyl` class.
+
+The first plotting function in the editor should be familiar to you by now. It's a straightforward bar chart with `position = "fill"`, as shown in the viewer. This is already a good solution to the problem at hand! Let's take it one step further and convert this plot in a pie chart.
+
+##### Instructions
+
+100 XP
+
+Adapt the code for the bar chart in the editor to turn it into a good looking pie chart:
+
+- Transform the bar plot into a facetted plot: add a [`facet_grid()`](http://www.rdocumentation.org/packages/ggplot2/functions/facet_grid) call to split columns by `cyl`. Remember to use formula notation here `ROW ~ COL`.
+
+- For the moment, each facet will only have one category because `cyl` is also mapped onto `x`. Use a dummy aesthetic for the `x`. Change the [`aes()`](http://www.rdocumentation.org/packages/ggplot2/functions/aes)function such that `factor(1)` maps onto `x`.
+
+- Add a [`coord_polar()`](http://www.rdocumentation.org/packages/ggplot2/functions/coord_polar) call where you specify the `theta` to `"y"`.
+
+- This is already pretty good, but to remove all non-data ink add a `theme_void()` layer. (This is the first time we've seen this theme, but you should be familiar with themes already).
+
+- There's a small hole in the center of the pies. Inside [`geom_bar()`](http://www.rdocumentation.org/packages/ggplot2/functions/geom_bar) set `width = 1` so that the bars fill up the entire width resulting in a full pie chart.
+
+  ```R
+  # Bar chart
+  ggplot(mtcars, aes(x = cyl, fill = am)) +
+    geom_bar(position = "fill")
+  
+  # Convert bar chart to pie chart
+  ggplot(mtcars, aes(x = (factor(1)), fill = am)) +
+    geom_bar(position = "fill") +
+    facet_grid(. ~ cyl) + # Facets
+    coord_polar( theta = "y") + # Coordinates
+    theme_void() # theme
+    
+  ```
+
+  # Pie Charts (2)
+
+  In the previous example, we looked at one categorical variable (`am`) as a proportion of another (`cyl`). Here, we're interested in two or more categorical variables, independent of each other. The many pie charts in the viewer is an unsatisfactory visualization. We're interested in the relationship between all these variables (e.g. where are 8 cylinder cars represented on the Transmission, Gear and Carburetor variables?) Perhaps we also want continuous variables, such as weight. How can we combine all this information?
+
+  The trick is to use a parallel coordinates plot, like [this one](https://s3.amazonaws.com/assets.datacamp.com/course/ggplot2/course_2/parallelcoord.png). Each variable is plotted on its own *parallel* axis. Individual observations are connected with lines, colored according to a variable of interest. This is a surprisingly useful visualization since we can combine *many* variables, even if they are on entirely different scales.
+
+  A word of caution though: typically it is very taboo to draw lines in this way. It's the reason why we don't draw lines across levels of a nominal variable - the order, and thus the slope of the line, is meaningless. Parallel plots are a (very useful) exception to the rule!
+
+  ##### Instructions
+
+  100 XP
+
+  - `am` is variable `9` in the `mtcars` data frame. Assign this number to `group_by_am`. The object `my_names_am` will contain a numeric vector from 1 - 11 excluding the column with am. These will be our parallel axes.
+
+  - Fill in the [`ggparcoord()`](http://www.rdocumentation.org/packages/GGally/functions/ggparcoord) function.
+
+  - The first argument is the data frame you're using. `mtcars` in our case.
+
+  - The second argument is the number of the columns to plot (use `my_names_am`),
+
+  - `groupColumn` specifies the column number of the grouping variable (use `group_by_am`)
+
+  - `alpha`, the opacity, should be set to `0.8`
+
+    ```
+    # Parallel coordinates plot using GGally
+    library(GGally)
+    # All columns except am
+    group_by_am <- 9
+    my_names_am <- (1:11)[-group_by_am]
+    
+    # Basic parallel plot - each variable plotted as a z-score transformation
+    ggparcoord(mtcars, my_names_am, groupColumn = group_by_am, alpha = 0.8)
+    ```
+
+    # Heat Maps
+
+    In the video you saw reasons for not using heat maps. Nonetheless, you may encounter a case in which you really do want to use one. Luckily, they're fairly straightforward to produce in `ggplot2`.
+
+    We begin by specifying two categorical variables for the `x` and `y` aesthetics. At the intersection of each category we'll draw a box, except here we call it a tile, using the [`geom_tile()`](http://www.rdocumentation.org/packages/ggplot2/functions/geom_tile) layer. Then we will fill each tile with a continuous variable.
+
+    We'll produce the heat map we saw in the video with the built-in `barley`dataset. The `barley` dataset is in the `lattice` package and has already been loaded for you. Begin by exploring the structure of the data in the console using [`str()`](http://www.rdocumentation.org/packages/utils/functions/str).
+
+    ##### Instructions
+
+    100 XP
+
+    ##### Instructions
+
+    100 XP
+
+    Reproduce the heat map shown in the viewer in different steps:
+
+    - Define the data and the aesthetics layer. Using the `barley` dataset, map `year` onto `x`, `variety` onto `y` and `fill` according to `yield`
+
+    - Add a [`geom_tile()`](http://www.rdocumentation.org/packages/ggplot2/functions/geom_tile) to build the heat maps.
+
+    - So far the entire dataset is plotted on one heat map. Add a [`facet_wrap()`](http://www.rdocumentation.org/packages/ggplot2/functions/facet_wrap)function to get a facetted plot. Use the formula `~ site` (without the dot!) and set `ncol = 1`. By default, the names of the farms will be above the panels, not to the side (as we get with `facet_grid()`).
+
+    - [`brewer.pal()`](http://www.rdocumentation.org/packages/RColorBrewer/functions/ColorBrewer) from the `RColorBrewer` package has been used to create a `"Reds"` color palette. The hexadecimal color codes are stored in the `myColors` object. Add the [`scale_fill_gradientn()`](http://www.rdocumentation.org/packages/ggplot2/functions/scale_gradient) function and specify the `colors` argument correctly to give the heat maps a reddish look.
+
+      ```R
+      # Create color palette
+      myColors <- brewer.pal(9, "Reds")
+      
+      # Build the heat map from scratch
+      ggplot(barley, aes(x = year, y = variety,fill = yield)) +
+        geom_tile() + # Geom layer
+        facet_wrap( ~ site, ncol = 1) + # Facet layer
+        scale_fill_gradientn(colors= myColors) # Adjust colors
+      ```
+
+      # Heat Maps Alternatives (1)
+
+      There are several alternatives to heat maps. The best choice really depends on the data and the story you want to tell with this data. If there is a time component, the most obvious choice is a line plot like what we see in the viewer. Can you come up with the correct commands to create a similar looking plot?
+
+      The `barley` dataset is already available in the workspace. Feel free to check out its structure before you start!
+
+      ##### Instructions
+
+      100 XP
+
+      - The line plot might be a good alternative:
+      - Base layer: same dataset, map `year` onto `x`, `yield` onto `y` and `variety` onto `col` as well as onto `group`!
+      - Add the appropriate geom for this **line** plot; no additional arguments are needed.
+      - Add facetting with the same formula as in the heat map plot, instead of `ncol`, set `nrow` to `1`.
+
+    - ```R
+      # The heat map we want to replace
+      # Don't remove, it's here to help you!
+      myColors <- brewer.pal(9, "Reds")
+      ggplot(barley, aes(x = year, y = variety, fill = yield)) +
+        geom_tile() +
+        facet_wrap( ~ site, ncol = 1) +
+        scale_fill_gradientn(colors = myColors)
+      
+      # Line plot; set the aes, geom and facet
+      ggplot(barley, aes(x = year, y = yield, color = variety, group = variety)) + 
+        geom_line() +
+        facet_wrap( ~ site, nrow = 1)
+      ```
+
+    - # Heat Maps Alternatives (2)
+
+    - In the videos we saw two methods for depicting overlapping measurements of spread. You can use dodged error bars or you can use overlapping transparent ribbons (shown in the viewer). In this exercise we'll try to recreate the second option, the transparent ribbons.
+
+    - The `barley` dataset is available. You can use `str(barley)` to refresh its structure before heading over to the instructions.
+
+    - ##### Instructions
+
+    - 100 XP
+
+    - ##### Instructions
+
+    - 100 XP
+
+    - Create a plot, similar to the one in the viewer, from scratch by following these steps:
+
+    - - Base layer: use the `barley` dataset. Try to come up with the correct mappings for `x`, `y`, `col`, `group` and `fill`.
+      - Add a [`stat_summary()`](http://www.rdocumentation.org/packages/ggplot2/functions/stat_summary) function for the mean. Specify `fun.y` to be `mean` and set `geom` to `"line"`.
+      - Add a [`stat_summary()`](http://www.rdocumentation.org/packages/ggplot2/functions/stat_summary) function for the ribbons. Set `fun.data = mean_sdl` and `fun.args = list(mult = 1)` to have a ribbon that spans over one standard deviation in both directions. Use `geom = "ribbon"` and set `col = NA` and `alpha = 0.1`.
+
+  - ```R
+    # Create overlapping ribbon plot from scratch
+    ggplot(barley, aes(x = year, y = yield, col = site, group = site, fill = site)) +
+      stat_summary(fun.y = mean, geom = "line") +
+      stat_summary(fun.data = mean_sdl, fun.args = list(mult = 1), geom = "ribbon", alpha = 0.1, col = NA)
+    ```
+
+  - 
