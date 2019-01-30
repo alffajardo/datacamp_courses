@@ -3123,3 +3123,290 @@ ggplot(DF_melted, aes(x = X, y = value, fill = FILL)) +
   facet_grid(FILL ~ .) # Facets
 ```
 
+n  the previous exercise we looked at different ways of showing the  frequency distribution within each BMI category. This is all well and  good, but the absolute number of each age group also has an influence on  if we will consider something as over-represented or not. Here, we will  proceed to change the widths of the bars to show us something about the  n in each group.
+
+This will get a bit more involved, because the aim is not to draw  bars, but rather rectangles, for which we can control the widths. You  may have already realized that bars are simply rectangles, but we don't  have easy access to the `xmin` and `xmax` aesthetics, but in [`geom_rect()`](http://www.rdocumentation.org/packages/ggplot2/functions/geom_tile) we do! Likewise, we also have access to `ymin` and `ymax`. So we're going to draw a box for every one of our 268 distinct groups of BMI category and age.
+
+The clean `adult` dataset, as well as `BMI_fill`, are already available. Instead of running [`apply()`](http://www.rdocumentation.org/packages/base/functions/apply) like in the previous exercise, the contingency table has already been transformed to a data frame using [`as.data.frame.matrix()`](http://www.rdocumentation.org/packages/base/functions/as.data.frame).
+
+##### Instructions
+
+100 XP
+
+- To build the rectangle plot, we'll add several variables to `DF`:
+- `groupSum`, containing the sum of each row in the `DF`. Use [`rowSums()`](http://www.rdocumentation.org/packages/base/functions/colSums) to calculate this. `groupSum` represents the total number of individuals in each age group.
+- `xmax`: the `xmax` value for each rectangle, calculated as `cumsum(DF$groupSum)`
+- `xmin`: the `xmin` value for each rectangle, calculated by subtracting the `groupSum` column from the `xmax` column.
+- The names of the x axis groups are stored in the row names, which is pretty bad style, so make a *new* variable, `X`, that stores the values of [`row.names()`](http://www.rdocumentation.org/packages/base/functions/row.names) for `DF`.
+- Now we are ready to melt the dataset. Load `reshape2` and use `melt()` on `DF`. Specify the `id.vars` variables as `c("X", "xmin", "xmax")` and the `variable.name` argument as `"FILL"`. Store the result as `DF_melted`.
+- Have a look at the `dplyr` call that calculates the `ymax` and `ymin` columns of `DF_melted`. It first groups by `X` and then calculates cumulative proportions. The result is stored as `DF_melted` again.
+- If all goes well you should see the plot in the viewer when you execute the plotting function at the bottom of the script.
+
+```R
+# The initial contingency table
+DF <- as.data.frame.matrix(table(adult$SRAGE_P, adult$RBMI))
+
+# Create groupSum, xmax and xmin columns
+DF$groupSum <- rowSums(DF)
+DF$xmax <- cumsum(DF$groupSum)
+DF$xmin <- DF$xmax - DF$groupSum
+# The groupSum column needs to be removed; don't remove this line
+DF$groupSum <- NULL
+
+# Copy row names to variable X
+DF$X <- rownames(DF)
+
+# Melt the dataset
+library(reshape2)
+DF_melted <- melt(DF, id.vars = c("X","xmin","xmax"), variable.name = "FILL" )
+
+# dplyr call to calculate ymin and ymax - don't change
+library(dplyr)
+DF_melted <- DF_melted %>%
+  group_by(X) %>%
+  mutate(ymax = cumsum(value/sum(value)),
+         ymin = ymax - value/sum(value))
+
+# Plot rectangles - don't change
+library(ggthemes)
+ggplot(DF_melted, aes(ymin = ymin,
+                 ymax = ymax,
+```
+
+# Adding statistics
+
+In  the previous exercise we generated a plot where each individual bar was  plotted separately using rectangles (shown in the viewer). This means  we have access to each piece and we can apply different `fill` parameters.
+
+So let's make some new parameters. To get the Pearson residuals, we'll use the [`chisq.test()`](http://www.rdocumentation.org/packages/stats/functions/chisq.test) function.
+
+The data frames `adult` and `DF_melted`, as well as the object `BMI_fill` that you created throughout this chapter, are all still available. The `reshape2` package is already loaded.
+
+##### Instructions
+
+100 XP
+
+- Use the `adult$RBMI` (corresponding to `FILL`) and `adult$SRAGE_P` (corresponding to `X`) columns inside the [`table()`](http://www.rdocumentation.org/packages/base/functions/table) function that's inside the [`chisq.test()`](http://www.rdocumentation.org/packages/stats/functions/chisq.test) function. Store the result as `results`.
+- The residuals can be accessed through `results$residuals`. Apply the `melt()` function on them with no further arguments. Store the resulting data frame as `resid`.
+- Change the names of `resid` to `c("FILL", "X", "residual")`. This is so that we have a consistent naming convention similar to how we called our variables in the previous exercises.
+- The data frame from the previous exercise, `DF_melted` is already available. Use the [`merge()`](http://www.rdocumentation.org/packages/base/functions/merge) function to bring the two data frames together. Store the result as `DF_all`.
+- Adapt the code in the `ggplot` command to use `DF_all` instead of `DF_melted`. Also, map `residual` onto `fill` instead of `FILL`.
+
+```R
+# Perform chi.sq test (RBMI and SRAGE_P)
+results <- chisq.test(table(adult$RBMI,adult$SRAGE_P))
+
+# Melt results$residuals and store as resid
+resid <- melt(results$residuals)
+
+# Change names of resid
+names(resid) <- c("FILL", "X", "residual")
+
+# merge the two datasets:
+DF_all <- merge(DF_melted,resid)
+
+# Update plot command
+library(ggthemes)
+ggplot(DF_all, aes(ymin = ymin,
+                   ymax = ymax,
+                   xmin = xmin,
+                   xmax = xmax,
+                   fill = residual)) +
+  geom_rect() +
+  scale_fill_gradient2() +
+  scale_x_continuous(expand = c(0,0)) +
+  scale_y_continuous(expand = c(0,0)) +
+  theme_tufte()
+```
+
+# Adding text
+
+Since  we're not coloring according to BMI, we have to add group (and x axis)  labels manually. Our goal is the plot in the viewer.
+
+For this we'll use the `label` aesthetic inside [`geom_text()`](http://www.rdocumentation.org/packages/ggplot2/functions/geom_text). The actual labels are found in the `FILL` (BMI category) and `X` (age) columns in the `DF_all` data frame. (Additional attributes have been set inside [`geom_text()`](http://www.rdocumentation.org/packages/ggplot2/functions/geom_text) in the exercise for you). 
+
+The labels will be added to the right (BMI category) and top (age)  inner edges of the plot. (We could have also added margin text, but that  is a more advanced topic that we'll encounter in the third course. This  will be a suitable solution for the moment.)
+
+The first two commands show how we got the the four positions for the y axis labels. First, we got the position of the maximum `xmax` values, i.e. at the very right end, stored as `index`. We want to calculate the half difference between each pair of `ymax` and `ymin` (e.g. `(ymax - ymin)/2`) at these `index` positions, then add this value to the `ymin` value. These positions are stored in the variable `yposn`.
+
+We'll begin with the plot thus far, stored as object `p`. In the sample code, `%+% DF_all` refreshes the plot's dataset with the extra columns.
+
+##### Instructions
+
+100 XP
+
+- Plot 1: In the  [`geom_text()`](http://www.rdocumentation.org/packages/ggplot2/functions/geom_text) function, define the `x`, `y` and `label` aesthetics.
+- Set `x` to `max(xmax)`, so the labels are on the right side of the plot.
+- Set the position of `y` to `yposn`.
+- Set the `label` text to `FILL`.
+- Plot 2: The same thing for the x axis label positions. You don't need to find an index here, since you can use the same `y` position for all these labels: `1`.
+- Calculate the half difference between each pair of `xmax` and `xmin` then add this value to `xmin`.
+- Complete the plot command by adding the labels in the `xposn` to our plot, the label this time will be `X`, which in this case is the age.
+
+This plot isn't perfect, but it does a pretty good job for an exploratory plot.
+
+```R
+# Plot so far
+p
+
+# Position for labels on y axis (don't change)
+index <- DF_all$xmax == max(DF_all$xmax)
+DF_all$yposn <- DF_all$ymin[index] + (DF_all$ymax[index] - DF_all$ymin[index])/2
+
+# Plot 1: geom_text for BMI (i.e. the fill axis)
+p1 <- p %+% DF_all + 
+  geom_text(aes(x = max(xmax), 
+                y = yposn,
+                label = FILL),
+            size = 3, hjust = 1,
+            show.legend  = FALSE)
+p1
+
+# Plot 2: Position for labels on x axis
+DF_all$xposn <- DF_all$xmin + (DF_all$xmax - DF_all$xmin)/2
+
+# geom_text for ages (i.e. the x axis)
+p1 %+% DF_all + 
+  geom_text(aes(x = xposn, label = X),
+            y = 1, angle = 90,
+            size = 3, hjust = 1,
+            show.legend = FALSE)
+```
+
+# Generalizations
+
+Now  that you've done all the steps necessary to make our mosaic plot, you  can wrap all the steps into a single function that we can use to examine  any two variables of interest in our data frame (or in any other data  frame for that matter). For example, we can use it to examine the `Vocab` data frame we saw earlier in this course.
+
+You've seen all the code in our function, so there shouldn't be  anything surprising there. Notice that the function takes multiple  arguments, such as the data frame of interest and the variables that you  want to create the mosaic plot for. None of the arguments have default  values, so you'll have to specify all three if you want the `mosaicGG()` function to work.
+
+Start by going through the code and see if you understand the function's implementation.
+
+##### Instructions
+
+100 XP
+
+- Print `mosaicGG` and read its contents.
+- Calling `mosaicGG(adult, "SRAGE_P","RBMI")` will result  in the plot you've been working on so far. Try this out. This gives you a  mosaic plot where BMI is described by age.
+- Test out another combination of variables in the `adult` data frame: Poverty (`POVLL`) described by Age (`SRAGE_P`).
+- Try the function on other datasets we've worked with throughout this course:
+- `mtcars` dataset: `am` described by `cyl`
+- `Vocab` dataset: `vocabulary` described by `education`.
+
+```R
+mosaicGG <- function(data, X, FILL) {
+  # Proportions in raw data
+  DF <- as.data.frame.matrix(table(data[[X]], data[[FILL]]))
+  DF$groupSum <- rowSums(DF)
+  DF$xmax <- cumsum(DF$groupSum)
+  DF$xmin <- DF$xmax - DF$groupSum
+  DF$X <- row.names(DF)
+  DF$groupSum <- NULL
+  DF_melted <- melt(DF, id = c("X", "xmin", "xmax"), variable.name = "FILL")
+  DF_melted <- DF_melted %>%
+    group_by(X) %>%
+    mutate(ymax = cumsum(value/sum(value)),
+           ymin = ymax - value/sum(value))
+
+  # Chi-sq test
+  results <- chisq.test(table(data[[FILL]], data[[X]])) # fill and then x
+  resid <- melt(results$residuals)
+  names(resid) <- c("FILL", "X", "residual")
+
+  # Merge data
+  DF_all <- merge(DF_melted, resid)
+
+  # Positions for labels
+  DF_all$xposn <- DF_all$xmin + (DF_all$xmax - DF_all$xmin)/2
+  index <- DF_all$xmax == max(DF_all$xmax)
+  DF_all$yposn <- DF_all$ymin[index] + (DF_all$ymax[index] - DF_all$ymin[index])/2
+
+  # Plot
+  g <- ggplot(DF_all, aes(ymin = ymin,  ymax = ymax, xmin = xmin,
+                          xmax = xmax, fill = residual)) +
+  geom_rect(col = "white") +
+  geom_text(aes(x = xposn, label = X),
+            y = 1, size = 3, angle = 90, hjust = 1, show.legend = FALSE) +
+  geom_text(aes(x = max(xmax),  y = yposn, label = FILL),
+            size = 3, hjust = 1, show.legend = FALSE) +
+  scale_fill_gradient2("Residuals") +
+  scale_x_continuous("Individuals", expand = c(0,0)) +
+  scale_y_continuous("Proportion", expand = c(0,0)) +
+  theme_tufte() +
+  theme(legend.position = "bottom")
+  print(g)
+}
+```
+
+# Course III
+
+# Refresher (1)
+
+As a refresher to statistical plots, let's build a scatter plot with an additional statistic layer.
+
+A dataset called `movies_small` is coded in your workspace. It is a random sample of 1000 observations from the larger `movies` dataset, that's inside the `ggplot2movies` package. The dataset contains information on movies from IMDB. The variable `votes` is the number of IMDB users who have rated a movie and the `rating` (converted into a categorical variable) is the average rating for the movie.
+
+##### Instructions
+
+100 XP
+
+- Use `str()` to explore the structure of the dataset `movies_small`, that is available in your workspace.
+- Create a scatter plot with a statistics layer on top:
+- Use `geom_point()` to make a scatter plot, mapping `votes` onto the `y`, and `rating` onto the `x` aesthetics.
+- Add a `stat_summary()` layer that depicts the mean and the 95% CI. Use a `"crossbar"` geom, a `width` of 0.2 and a red `col`.
+- Add `scale_y_log10()` to transform the y scale.
+
+```R
+# Create movies_small
+library(ggplot2movies)
+set.seed(123)
+movies_small <- movies[sample(nrow(movies), 1000), ]
+movies_small$rating <- factor(round(movies_small$rating))
+
+# Explore movies_small with str()
+str(movies_small)
+
+# Build a scatter plot with mean and 95% CI
+ggplot(movies_small, aes(x = rating, y = votes)) +
+  geom_point() +
+  stat_summary(fun.data = "mean_cl_normal",
+               geom = "crossbar",
+               width = 0.2,
+               col = "red" ) +
+  scale_y_log10()
+```
+
+# Refresher (2)
+
+The plot in the graphics device is a variation on an oft-seen `ggplot2` example using the `diamonds` dataset (containing information on several variables of over 50,000 diamonds).
+
+Recall that there are a variety of `scale_` functions. Here, data are transformed or filtered *first*, after which the plot and associated statistics are computed. For example, `scale_y_continuous(limits = c(100, 1000)` will *remove* values outside that range.
+
+Contrast this to `coord_cartesian()`, which computes the statistics *before* plotting. That means that the plot and summary statistics are performed on the raw data. That's why we say that `coord_cartesian(c(100, 1000))` "zooms in" a plot. This was discussed in the chapter on [`coordinates`](https://campus.datacamp.com/courses/data-visualization-with-ggplot2-2/chapter-2-coordinates-and-facets?ex=1) in course 2.
+
+Here we're going to expand on this and introduce `scale_x_log10()` and `scale_y_log10()` which perform log10 transformations, and `coord_equal()`, which sets an aspect ratio of `1` (`coord_fixed()` is also an option).
+
+Your task is to reproduce the plot in the viewer. Before you do this, it might be a good idea to explore `diamonds` in the console if you are not familiar with it.
+
+##### Instructions
+
+100 XP
+
+- We are using three variables from the `diamonds` data set: `carat`, `price`, and `color`. Map them to the appropriate aesthetics as per the plot in the viewer.
+- Add a `geom_point()` layer to make a scatter plot. Set the attributes `alpha = 0.5`, `size = 0.5`, `shape = 16`.
+- Transform both axes to log10 scales using the aforementioned scale functions. The `limits` are, for x: `c(0.1,10)`, for y: `c(100,100000)`. To get nice formatting we're using the `expression()` function for the labels. Use `expression(log[10](Carat))` for the x axis and `expression(log[10](Price))` for the y axis.
+- Use a `coord_equal()` function with no arguments, which will set the aspect ratio to `1`.
+
+- 
+
+- Take Hint (-30 XP)
+
+```R
+# Reproduce the plot
+ggplot(diamonds, aes(x = carat, y = price, col = color)) +
+  geom_point(alpha = 0.5, size = 0.5, shape = 16) +
+  scale_x_log10(expression(log[10](Carat)), limits = c(0.1,10)) +
+  scale_y_log10(expression(log[10](Price)), limits = c(100,100000)) +
+  scale_color_brewer(palette = "YlOrRd") +
+  coord_equal() +
+  theme_classic()
+```
+
