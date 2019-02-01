@@ -40,3 +40,97 @@ bands3 <- right_join(artists, bands, by = c("first", "last"))
 setequal(bands2, bands3)
 ```
 
+# Inner joins and full joins
+
+You may have noticed that some of the songs in `songs` correspond to some of the albums in `albums`. Suppose you want a new dataset that contains all of the songs for which you have data from both `albums` and `songs`. How would you make it? 
+
+The `artists` and `bands` datasets also share  some information. What if you want to join these two datasets in such a  way that you retain all of the information available in both tables,  without throwing anything away?
+
+You can think of inner joins as the most strict type of join: they  only retain observations that appear in both datasets. In contrast, full  joins are the most permissive type of join: they return all of the data  that appears in both datasets (often resulting in many missing values).
+
+Recall that, `*_join(x, y)` joins `y` **to** `x`. The second dataset you specify is joined to the first dataset.
+
+##### Instructions
+
+100 XP
+
+- Join `albums` to `songs` in a way that returns only rows that contain information about both songs and albums.
+- Join `bands` to `artists` to create a single table that contains *all* of the available data.
+
+```R
+# Join albums to songs using inner_join()
+inner_join(songs,albums)
+
+# Join bands to artists using full_join()
+full_join(artists,bands)
+```
+
+# Pipes
+
+You can combine `dplyr` functions together with the pipe operator, `%>%`, to build up an analysis step-by-step. `%>%`  takes the result of the code that comes before it and "pipes" it into  the function that comes after it as the first argument of the function.
+
+So for example, the two pieces of code below do the same thing:
+
+```
+full_join(artists, bands, 
+          by = c("first", "last"))
+
+artists %>% 
+  full_join(bands, by = c("first", "last"))
+```
+
+Pipes are so efficient for multi-step analysis that you will use them  for the remainder of the exercises in this course. (If you need a  refresher on the pipe operator, check out [Data Manipulation in R with dplyr](https://www.datacamp.com/courses/dplyr-data-manipulation-r-tutorial) course!)
+
+##### Instructions
+
+100 XP
+
+The code in the editor finds all of the known guitarists in the `bands` dataset. Rewrite the code to use `%>%`s instead of multiple function calls. The pipe `%>%` should be used three times and `temp` zero times.
+
+```R
+# Find guitarists in bands dataset (don't change)
+temp <- left_join(bands, artists, by = c("first", "last"))
+temp <- filter(temp, instrument == "Guitar")
+select(temp, first, last, band)
+
+# Reproduce code above using pipes
+bands %>% 
+left_join(artists,by = c("first","last")) %>%
+  filter(instrument== "Guitar")%>%
+  select(first, last, band)
+```
+
+# Practice with pipes and joins
+
+We've created a data frame for you called `goal`.  It's available in your workspace, so go ahead and take a look. Your  mission, if you choose to accept it, is to create a dataset that's  identical to `goal`.
+
+##### Instructions
+
+100 XP
+
+- Examine the `goal` dataset by printing it to the console.
+
+- Write a pipe that uses a full join and an inner join to combine `artists`, `bands`, and `songs` into `goal2`, a dataset identical to `goal`.
+
+- Use `setequal()` to check that `goal` is identical to `goal2`
+
+  # Choose your joins
+
+  You're getting the hang of pipes now! They are a very useful way to combine multiple joins to make a single dataset. 
+
+  Let's craft one more dataset before moving to Chapter 2. One of the  most useful ways to combine data is to place all of the values of all of  the datasets into a single table.
+
+  ##### Instructions
+
+  100 XP
+
+  Write a pipe that combines `artists`, `bands`, `songs`, and `albums` (in that order) into a single table, such that it contains *all* of the information in the datasets.
+
+```R
+# Create one table that combines all information
+artists %>% 
+  full_join(bands, by = c("first", "last")) %>% 
+  full_join(songs, by = c("first", "last")) %>% 
+  full_join(albums, by = c("album", "band"))
+```
+
