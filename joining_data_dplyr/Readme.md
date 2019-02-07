@@ -134,3 +134,79 @@ artists %>%
   full_join(albums, by = c("album", "band"))
 ```
 
+# Apply a semi-join
+
+As you saw in the video, semi-joins provide a concise way to filter data from the first dataset based on information in a second dataset.
+
+For example, the code in the editor uses `semi_join()` to create a data frame of the artists in `artists` who have written a song in `songs`.
+
+##### Instructions
+
+100 XP
+
+- Run the `semi_join()` command to see its output.
+
+- Then fill in the blanks of the `right_join()`, `filter()`, and `select()` calls to create the same result (but with the rows in a different order).
+
+  ```R
+  # View the output of semi_join()
+  artists %>% 
+    semi_join(songs, by = c("first", "last"))
+  
+  # Create the same result
+  artists %>% 
+    right_join(songs, by = c("first", "last")) %>% 
+    filter(!is.na(instrument)) %>% 
+    select(first, last, instrument)
+  ```
+
+  # Exploring with semi-joins
+
+  Semi-joins provide a useful way to explore the connections between multiple tables of data.
+
+  For example, you can use a semi-join to determine the number of albums in the `albums` dataset that were made by a band in the `bands` dataset.
+
+  ##### Instructions
+
+  100 XP
+
+  - For the first pipe, use `semi_join()` to collect the albums in `albums` that were made by a band in `bands`.
+  - For the second pipe, use [`nrow()`](https://www.rdocumentation.org/packages/base/topics/nrow) to count how many albums were made by a band in the dataset.
+
+  - ```R
+    albums %>% 
+      # Collect the albums made by a band
+      semi_join(bands,by="band") %>% 
+      # Count the albums made by a band
+      nrow()
+    ```
+
+  - # Apply an anti-join
+
+  - As Garrett mentioned in the video, anti-joins provide a useful way to reason about how a mutating join will work before you apply the join.
+
+  - For example, you can use an anti-join to see which rows will not be matched to a second dataset by a join.
+
+  - ##### Instructions
+
+  - 100 XP
+
+  - Use an `anti_join()` to return the rows of `artists` for which you don't have any `bands` info. *Note: Don't forget to mention the by argument.*  
+
+```
+artists %>% 
+  anti_join(bands,by=c("first","last"))
+```
+
+# Apply another anti-join
+
+Anti-joins with `anti_join()` also provide a great way to diagnose joins that go wrong.
+
+For example, they can help you zero-in on rows that have capitalization or spelling errors in the keys. These things will make your primary and secondary keys appear different to R, even though you know they refer to the same thing.
+
+##### Instructions
+
+100 XP
+
+`labels` describes the record labels of the albums in `albums`. Compare the spellings of album names in `labels` with the names in `albums`. Are any of the album names of `labels` mis-entered? Use `anti_join()` to check. *Note: Don't forget to mention the by argument.*
+
